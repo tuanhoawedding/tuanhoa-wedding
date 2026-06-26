@@ -163,10 +163,46 @@ st.markdown(get_css(), unsafe_allow_html=True)
 # Tên đăng nhập chung: 0965758883 | Mật khẩu chung: Tun883@
 # Phân biệt vai trò qua dropdown khi đăng nhập
 # ============================================================
-MASTER_USERNAME = "0965758883"
-MASTER_PASSWORD = "Tun883@"
-
-ROLES = ["Admin", "Lễ tân", "Quản lý kho", "Makeup", "Nhiếp ảnh"]
+# ============================================================
+# HỆ THỐNG TÀI KHOẢN — Mỗi phòng ban có user/pass riêng
+# ============================================================
+USERS = {
+    # ── Ban Giám Đốc ──
+    "0965758883": {
+        "password": "Tun883@",
+        "role":     "Admin",
+        "name":     "Giám Đốc",
+        "phong":    "Ban Giám Đốc",
+    },
+    # ── Lễ Tân ──
+    "letan":  {
+        "password": "letan123",
+        "role":     "Lễ tân",
+        "name":     "Nhân viên Lễ tân",
+        "phong":    "Phòng Lễ tân",
+    },
+    # ── Kho ──
+    "kho": {
+        "password": "kho123",
+        "role":     "Quản lý kho",
+        "name":     "Nhân viên Kho",
+        "phong":    "Phòng Kho",
+    },
+    # ── Makeup ──
+    "makeup": {
+        "password": "makeup123",
+        "role":     "Makeup",
+        "name":     "Chuyên viên Makeup",
+        "phong":    "Phòng Makeup",
+    },
+    # ── Nhiếp Ảnh ──
+    "photo": {
+        "password": "photo123",
+        "role":     "Nhiếp ảnh",
+        "name":     "Nhiếp ảnh gia",
+        "phong":    "Phòng Chụp ảnh",
+    },
+}
 
 ROLE_MENUS = {
     "Admin":       ["🏠 Tổng quan", "👥 Khách hàng & Tiến độ", "📅 Lịch làm việc", "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ", "⚙️ Quản lý nhân sự"],
@@ -264,23 +300,51 @@ def show_login():
         st.markdown("<br>", unsafe_allow_html=True)
 
         with st.form("login_form"):
-            username = st.text_input("📱 Số điện thoại / Tên đăng nhập", placeholder="0965758883")
-            password = st.text_input("🔑 Mật khẩu", type="password", placeholder="••••••••")
-            role     = st.selectbox("👤 Vai trò", ROLES)
+            username  = st.text_input("👤 Tên đăng nhập", placeholder="Nhập username...")
+            password  = st.text_input("🔑 Mật khẩu", type="password", placeholder="••••••••")
             submitted = st.form_submit_button("✨ Đăng nhập", use_container_width=True)
             if submitted:
-                if username == MASTER_USERNAME and password == MASTER_PASSWORD:
+                if username in USERS and USERS[username]["password"] == password:
+                    u = USERS[username]
                     st.session_state.logged_in = True
-                    st.session_state.user = {"username": username, "role": role, "name": f"{role} - TuanHoa Wedding"}
+                    st.session_state.user = {
+                        "username": username,
+                        "role":     u["role"],
+                        "name":     u["name"],
+                        "phong":    u["phong"],
+                    }
                     st.rerun()
                 else:
-                    st.error("❌ Sai thông tin đăng nhập!")
+                    st.error("❌ Sai tên đăng nhập hoặc mật khẩu!")
 
-        st.markdown(f"""
+        st.markdown("""
         <div style="background:#2A2618;border:1px solid #C9A84C33;border-radius:8px;
-                    padding:12px 16px;margin-top:10px;font-size:0.78rem;color:#FAF6EE99;text-align:center;">
-            <span style="color:#C9A84C;font-weight:600;">Thông tin đăng nhập:</span><br>
-            SĐT: <b style="color:#E8D08A;">0965758883</b> &nbsp;|&nbsp; Chọn vai trò tương ứng
+                    padding:12px 16px;margin-top:10px;font-size:0.77rem;color:#FAF6EE99;">
+            <div style="color:#C9A84C;font-weight:700;margin-bottom:6px;text-align:center;">
+                📋 Tài khoản các phòng ban
+            </div>
+            <table style="width:100%;border-collapse:collapse;">
+              <tr style="color:#E8D08A;font-size:0.72rem;">
+                <td style="padding:2px 6px;">Username</td>
+                <td style="padding:2px 6px;">Phòng ban</td>
+                <td style="padding:2px 6px;">Quyền truy cập</td>
+              </tr>
+              <tr><td style="padding:2px 6px;color:#FAF6EE;">0965758883</td>
+                  <td style="padding:2px 6px;color:#C9A84C;">Ban Giám Đốc</td>
+                  <td style="padding:2px 6px;color:#FAF6EE88;">Toàn bộ hệ thống</td></tr>
+              <tr><td style="padding:2px 6px;color:#FAF6EE;">letan</td>
+                  <td style="padding:2px 6px;color:#C9A84C;">Phòng Lễ tân</td>
+                  <td style="padding:2px 6px;color:#FAF6EE88;">Khách hàng, Lịch, Giao nhận</td></tr>
+              <tr><td style="padding:2px 6px;color:#FAF6EE;">kho</td>
+                  <td style="padding:2px 6px;color:#C9A84C;">Phòng Kho</td>
+                  <td style="padding:2px 6px;color:#FAF6EE88;">3 kho + Giao nhận</td></tr>
+              <tr><td style="padding:2px 6px;color:#FAF6EE;">makeup</td>
+                  <td style="padding:2px 6px;color:#C9A84C;">Phòng Makeup</td>
+                  <td style="padding:2px 6px;color:#FAF6EE88;">Lịch của mình</td></tr>
+              <tr><td style="padding:2px 6px;color:#FAF6EE;">photo</td>
+                  <td style="padding:2px 6px;color:#C9A84C;">Phòng Chụp ảnh</td>
+                  <td style="padding:2px 6px;color:#FAF6EE88;">Lịch của mình</td></tr>
+            </table>
         </div>
         """, unsafe_allow_html=True)
 
@@ -303,16 +367,15 @@ def show_sidebar():
         '</div>',
         unsafe_allow_html=True
     )
-    st.sidebar.markdown(f"""
-    <div style="text-align:center;padding:0;">
-    <div style="background:rgba(201,168,76,0.1);border:1px solid #C9A84C44;border-radius:10px;
+    st.sidebar.markdown(
+        f'''<div style="background:rgba(201,168,76,0.1);border:1px solid #C9A84C44;border-radius:10px;
                 padding:10px;margin:8px 0 14px;text-align:center;">
-        <div style="font-size:1.4rem;">{icon}</div>
-        <div style="font-weight:700;font-size:0.9rem;color:#FAF6EE;">{user["role"]}</div>
-        <div style="font-size:0.72rem;color:#C9A84C;margin-top:2px;">TUANHOA WEDDING</div>
-    </div>
-    """, unsafe_allow_html=True)
-
+            <div style="font-size:1.3rem;">{icon}</div>
+            <div style="font-weight:700;font-size:0.88rem;color:#FAF6EE;">{user["name"]}</div>
+            <div style="font-size:0.72rem;color:#C9A84C;margin-top:2px;">{user["phong"]}</div>
+        </div>''',
+        unsafe_allow_html=True
+    )
     menus = ROLE_MENUS.get(user["role"], [])
     selected = st.sidebar.radio("Menu", menus, label_visibility="collapsed")
 
@@ -678,15 +741,38 @@ def page_borrow():
 # TRANG: NHÂN SỰ
 # ============================================================
 def page_personnel():
-    st.markdown('<div class="section-header">⚙️ Quản lý Nhân sự</div>', unsafe_allow_html=True)
-    st.info("💡 Hệ thống dùng 1 tài khoản chung **0965758883** — phân quyền qua lựa chọn vai trò khi đăng nhập.")
-    data=[{"Vai trò":r,"Quyền truy cập":", ".join([m.split(" ",1)[1] for m in ROLE_MENUS[r]])} for r in ROLES]
-    st.dataframe(pd.DataFrame(data), use_container_width=True, hide_index=True)
+    st.markdown('<div class="section-header">⚙️ Quản lý Nhân sự & Phân quyền</div>', unsafe_allow_html=True)
+
+    st.markdown("**👥 Danh sách tài khoản & phân quyền**")
+    rows = []
+    for uname, info in USERS.items():
+        menus = ROLE_MENUS.get(info["role"], [])
+        quyen = " · ".join([m.split(" ",1)[1] for m in menus if "Tổng quan" not in m])
+        rows.append({
+            "Username":           uname,
+            "Họ tên / Chức danh": info["name"],
+            "Phòng ban":          info["phong"],
+            "Vai trò":            info["role"],
+            "Quyền truy cập":     quyen,
+        })
+    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("**🔐 Bảng phân quyền chi tiết**")
+    role_rows = []
+    icons_map = {"Admin":"👑","Lễ tân":"🛎️","Quản lý kho":"📦","Makeup":"💄","Nhiếp ảnh":"📷"}
+    for role, menus in ROLE_MENUS.items():
+        role_rows.append({
+            "Vai trò": f"{icons_map.get(role,'')} {role}",
+            "Các chức năng": " · ".join([m.split(" ",1)[1] for m in menus]),
+            "Số chức năng": len(menus),
+        })
+    st.dataframe(pd.DataFrame(role_rows), use_container_width=True, hide_index=True)
 
     st.markdown("""
     <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;margin-top:16px;">
         <div style="color:#C9A84C;font-weight:700;margin-bottom:8px;">📋 Thông tin hệ thống</div>
-        <div style="color:#FAF6EE;font-size:0.88rem;line-height:1.8;">
+        <div style="color:#FAF6EE;font-size:0.88rem;line-height:1.9;">
             🏢 <b>TUANHOA WEDDING</b> — PHOTO · MAKE UP · BRIDAL · ACADEMY<br>
             📞 0963 758 883 · 0965 758 883<br>
             📍 Phố Cát – Vân Du – Thanh Hoá<br>
