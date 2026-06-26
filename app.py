@@ -514,7 +514,20 @@ def show_sidebar():
         unsafe_allow_html=True
     )
     menus = ROLE_MENUS.get(user["role"], [])
-    selected = st.sidebar.radio("Menu", menus, label_visibility="collapsed")
+
+    # nav_override: set by dashboard card buttons
+    if "nav_override" not in st.session_state:
+        st.session_state.nav_override = None
+
+    default_idx = 0
+    if st.session_state.nav_override and st.session_state.nav_override in menus:
+        default_idx = menus.index(st.session_state.nav_override)
+
+    selected = st.sidebar.radio("Menu", menus, index=default_idx, label_visibility="collapsed")
+
+    # Clear override after use
+    if st.session_state.nav_override:
+        st.session_state.nav_override = None
 
     st.sidebar.markdown("<br>", unsafe_allow_html=True)
     if st.sidebar.button("🚪 Đăng xuất", use_container_width=True):
@@ -536,40 +549,128 @@ def show_sidebar():
 # TRANG: TỔNG QUAN
 # ============================================================
 def page_dashboard():
-    st.markdown('<div class="section-header">🏠 Tổng quan hệ thống — TUANHOA WEDDING</div>', unsafe_allow_html=True)
-    df_c = st.session_state.df_customers
-    df_b = st.session_state.df_borrow
+    user = st.session_state.user
 
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.markdown(f'<div class="metric-card"><h2>{len(df_c)}</h2><p>Tổng khách hàng</p></div>', unsafe_allow_html=True)
-    with c2:
-        dang_lam = len(df_c[df_c["Trạng thái"]=="Đang thực hiện"])
-        st.markdown(f'<div class="metric-card"><h2>{dang_lam}</h2><p>Đang thực hiện</p></div>', unsafe_allow_html=True)
-    with c3:
-        cho_tra = len(df_b[df_b["Trạng thái"]=="Đã giao"])
-        st.markdown(f'<div class="metric-card"><h2>{cho_tra}</h2><p>Đồ chưa hoàn trả</p></div>', unsafe_allow_html=True)
-    with c4:
-        vay_san = len(st.session_state.df_vay[st.session_state.df_vay["Trạng thái"]=="Sẵn sàng"])
-        st.markdown(f'<div class="metric-card"><h2>{vay_san}</h2><p>Váy cưới sẵn sàng</p></div>', unsafe_allow_html=True)
+    # ── Chào mừng ────────────────────────────────────────
+    today_vn = date.today().strftime("%A, %d/%m/%Y")
+    st.markdown(f'''
+    <div style="margin-bottom:20px;">
+        <div style="font-size:1.6rem;font-weight:800;color:#FAF6EE;">
+            Xin chào, {user["name"]} 👋
+        </div>
+        <div style="font-size:0.82rem;color:#FAF6EE66;margin-top:2px;">
+            Tổng quan hoạt động kinh doanh — {today_vn}
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    col_l, col_r = st.columns(2)
-    with col_l:
-        st.markdown("**📊 Trạng thái khách hàng**")
-        sc = df_c["Trạng thái"].value_counts().reset_index()
-        sc.columns = ["Trạng thái","Số lượng"]
-        st.dataframe(sc, use_container_width=True, hide_index=True)
-    with col_r:
-        st.markdown("**📦 Tình trạng trang phục**")
-        all_items = pd.concat([
-            st.session_state.df_vay[["Trạng thái"]],
-            st.session_state.df_aodai[["Trạng thái"]],
-            st.session_state.df_suit[["Trạng thái"]],
-        ])
-        ic = all_items["Trạng thái"].value_counts().reset_index()
-        ic.columns = ["Trạng thái","Số lượng"]
-        st.dataframe(ic, use_container_width=True, hide_index=True)
+    # ── Lấy dữ liệu ──────────────────────────────────────
+    df_hd   = st.session_state.df_hopdong
+    df_lh   = st.session_state.df_lichhens
+    df_mu   = st.session_state.df_makeup
+    df_hk   = st.session_state.df_hauky
+    df_vay  = st.session_state.df_vay
+    df_ao   = st.session_state.df_aodai
+    df_suit = st.session_state.df_suit
+    df_bn   = st.session_state.df_borrow
+    df_tc   = st.session_state.df_thu_chi
+    today_s = str(date.today())
+
+    # Tính nhanh
+    tong_hd       = len(df_hd)
+    hd_dang_th    = len(df_hd[df_hd["Trạng thái"]=="Đang thực hiện"])
+    hd_con_no     = df_hd["Còn lại"].sum()
+    hd_doanh_thu  = df_hd["Tổng tiền"].sum()
+    lh_hom_nay    = len(df_lh[df_lh["Ngày"]==today_s])
+    mu_chua_giao  = len(df_mu[df_mu["Thợ makeup"]==""])
+    hk_qua_han    = len(df_hk[(df_hk["Trạng thái HK"]!="Hoàn thành")&(df_hk["Ngày hẹn trả"]<today_s)&(df_hk["Ngày hẹn trả"]!="")])
+    hk_chua_giao  = len(df_hk[df_hk["Trạng thái HK"]=="Chưa giao"])
+    vay_san_sang  = len(df_vay[df_vay["Trạng thái"]=="Sẵn sàng"])
+    do_cho_tra    = len(df_bn[df_bn["Trạng thái"]=="Đã giao"])
+    tong_thu_tc   = df_tc[df_tc["Loại"]=="Thu"]["Số tiền"].sum()
+    tong_chi_tc   = df_tc[df_tc["Loại"]=="Chi"]["Số tiền"].sum()
+
+    # ── Cảnh báo nhanh ───────────────────────────────────
+    warnings = []
+    if mu_chua_giao:  warnings.append(f"💄 {mu_chua_giao} lịch Makeup chưa giao")
+    if hk_qua_han:    warnings.append(f"🎨 {hk_qua_han} Hậu kỳ quá hạn")
+    if hk_chua_giao:  warnings.append(f"📋 {hk_chua_giao} Hậu kỳ chưa giao việc")
+    if do_cho_tra:    warnings.append(f"📦 {do_cho_tra} đồ chưa hoàn trả")
+    if warnings:
+        warn_html = " &nbsp;·&nbsp; ".join([f'<span style="color:#e67e22;font-weight:600;">{w}</span>' for w in warnings])
+        st.markdown(f'''
+        <div style="background:#e67e2210;border:1px solid #e67e2244;border-radius:8px;
+                    padding:10px 16px;margin-bottom:18px;font-size:0.8rem;">
+            ⚠️ &nbsp; {warn_html}
+        </div>''', unsafe_allow_html=True)
+
+    # ── Định nghĩa tất cả modules ─────────────────────────
+    MODULES = [
+        # (menu_key, icon, title, subtitle, color, badge_val, badge_label, row_group)
+        ("📋 Hợp đồng",    "📋", "Hợp đồng",         f"{tong_hd} hợp đồng · {hd_dang_th} đang thực hiện",   "#C9A84C", f"{hd_doanh_thu/1_000_000:.0f}M", "Doanh thu",    0),
+        ("🗓️ Lịch hẹn",    "🗓️", "Lịch hẹn",          f"{lh_hom_nay} lịch hôm nay",                          "#3498db", str(lh_hom_nay),                  "Hôm nay",      0),
+        ("💄 Makeup",       "💄", "Makeup",             f"{len(df_mu)} lịch · {mu_chua_giao} chưa giao",        "#e91e8c", str(mu_chua_giao) if mu_chua_giao else "✓","Chưa giao",0),
+        ("🎨 Hậu kỳ",      "🎨", "Hậu kỳ",             f"{len(df_hk)} công việc · {hk_qua_han} quá hạn",       "#9b59b6", str(hk_qua_han) if hk_qua_han else "✓","Quá hạn",  0),
+        ("👥 Khách hàng & Tiến độ","👥","Khách hàng",  f"Tiến độ & trạng thái khách",                          "#27ae60", str(len(st.session_state.df_customers)), "Khách hàng",1),
+        ("📅 Lịch làm việc","📅", "Lịch làm việc",     f"Giao việc Makeup · Photo · Design",                   "#e67e22", str(len(st.session_state.df_schedule)),  "Lịch",      1),
+        ("👗 Kho váy cưới", "👗", "Kho váy cưới",      f"{vay_san_sang} váy sẵn sàng",                         "#e74c3c", str(vay_san_sang),                 "Sẵn sàng",    1),
+        ("🥻 Kho áo dài",   "🥻", "Kho áo dài",        f"{len(df_ao)} áo dài",                                 "#f39c12", str(len(df_ao)),                   "Tổng",        1),
+        ("👔 Kho Suit",     "👔", "Kho Suit",           f"{len(df_suit)} suit",                                  "#1abc9c", str(len(df_suit)),                 "Tổng",        1),
+        ("📦 Giao nhận đồ", "📦", "Giao nhận đồ",      f"{do_cho_tra} đồ chưa hoàn trả",                       "#e67e22", str(do_cho_tra) if do_cho_tra else "✓","Chưa trả", 1),
+        ("💰 Thu Chi",      "💰", "Thu Chi",            f"Thu: {tong_thu_tc/1_000_000:.1f}M · Chi: {tong_chi_tc/1_000_000:.1f}M","#27ae60",f"{(tong_thu_tc-tong_chi_tc)/1_000_000:.1f}M","Lợi nhuận",2),
+        ("💵 Tính Lương",   "💵", "Tính Lương",         f"{len(st.session_state.df_nhansu)} nhân viên",          "#E8D08A", str(len(st.session_state.df_nhansu)),"NV",          2),
+        ("📊 Thuế & Báo cáo","📊","Thuế & Báo cáo",    "Kê khai thuế · Sổ kế toán",                            "#e74c3c", "7%","GTGT",                                         2),
+        ("⚙️ Quản lý nhân sự","⚙️","Nhân sự",          f"Phân quyền & tài khoản",                              "#888",    str(len(USERS)),"Tài khoản",                          2),
+    ]
+
+    menus_allowed = ROLE_MENUS.get(user["role"], [])
+
+    # ── Group 0: Nghiệp vụ chính ─────────────────────────
+    group0 = [m for m in MODULES if m[7]==0 and m[0] in menus_allowed]
+    group1 = [m for m in MODULES if m[7]==1 and m[0] in menus_allowed]
+    group2 = [m for m in MODULES if m[7]==2 and m[0] in menus_allowed]
+
+    def render_module_cards(modules, ncols=4):
+        rows = [modules[i:i+ncols] for i in range(0, len(modules), ncols)]
+        for row in rows:
+            cols = st.columns(len(row))
+            for ci, (menu_key, icon, title, subtitle, color, badge_val, badge_label, _) in enumerate(row):
+                with cols[ci]:
+                    st.markdown(f'''
+                    <div style="background:linear-gradient(135deg,#2A2618 60%,{color}18 100%);
+                                border:1px solid {color}44;border-radius:12px;
+                                padding:18px 16px;margin-bottom:4px;
+                                box-shadow:0 4px 16px rgba(0,0,0,0.25);
+                                position:relative;overflow:hidden;">
+                        <div style="position:absolute;top:-10px;right:-10px;font-size:3.5rem;opacity:0.06;">{icon}</div>
+                        <div style="font-size:1.8rem;margin-bottom:8px;">{icon}</div>
+                        <div style="font-size:0.95rem;font-weight:800;color:#FAF6EE;margin-bottom:4px;">{title}</div>
+                        <div style="font-size:0.72rem;color:#FAF6EE66;margin-bottom:12px;line-height:1.4;">{subtitle}</div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;">
+                            <span style="color:{color};font-weight:800;font-size:1.4rem;">{badge_val}</span>
+                            <span style="background:{color}22;color:{color};font-size:0.65rem;
+                                         font-weight:700;padding:2px 8px;border-radius:8px;">{badge_label}</span>
+                        </div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+                    if st.button(f"Vào {title}", key=f"dash_btn_{menu_key}", use_container_width=True):
+                        st.session_state.nav_override = menu_key
+                        st.rerun()
+
+    # Render 3 nhóm
+    if group0:
+        st.markdown('<div style="color:#C9A84C;font-weight:700;font-size:0.78rem;letter-spacing:0.1em;margin-bottom:10px;">NGHIỆP VỤ CHÍNH</div>', unsafe_allow_html=True)
+        render_module_cards(group0, ncols=4)
+        st.markdown("<br>", unsafe_allow_html=True)
+
+    if group1:
+        st.markdown('<div style="color:#C9A84C;font-weight:700;font-size:0.78rem;letter-spacing:0.1em;margin-bottom:10px;">KHO & VẬN HÀNH</div>', unsafe_allow_html=True)
+        render_module_cards(group1, ncols=min(len(group1), 5))
+        st.markdown("<br>", unsafe_allow_html=True)
+
+    if group2:
+        st.markdown('<div style="color:#C9A84C;font-weight:700;font-size:0.78rem;letter-spacing:0.1em;margin-bottom:10px;">TÀI CHÍNH & QUẢN TRỊ</div>', unsafe_allow_html=True)
+        render_module_cards(group2, ncols=4)
 
 # ============================================================
 # TRANG: KHÁCH HÀNG
@@ -1243,23 +1344,6 @@ def page_thu_chi():
     tong_thu = df[df["Loại"]=="Thu"]["Số tiền"].sum()
     tong_chi = df[df["Loại"]=="Chi"]["Số tiền"].sum()
     loi_nhuan = tong_thu - tong_chi
-    c1,c2,c3 = st.columns(3)
-    with c1:
-        st.markdown(f'''<div class="metric-card">
-            <h2 style="color:#27ae60;">{tong_thu/1_000_000:.1f}M</h2>
-            <p>💚 Tổng Thu</p></div>''', unsafe_allow_html=True)
-    with c2:
-        st.markdown(f'''<div class="metric-card">
-            <h2 style="color:#e74c3c;">{tong_chi/1_000_000:.1f}M</h2>
-            <p>❤️ Tổng Chi</p></div>''', unsafe_allow_html=True)
-    with c3:
-        color = "#27ae60" if loi_nhuan >= 0 else "#e74c3c"
-        icon  = "📈" if loi_nhuan >= 0 else "📉"
-        st.markdown(f'''<div class="metric-card">
-            <h2 style="color:{color};">{loi_nhuan/1_000_000:.1f}M</h2>
-            <p>{icon} Lợi nhuận</p></div>''', unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
     tab1, tab2, tab3 = st.tabs(["📊 Tổng hợp", "📋 Chi tiết giao dịch", "➕ Thêm giao dịch"])
 
     with tab1:
@@ -1755,19 +1839,6 @@ def page_hopdong():
         _show_hopdong_detail(st.session_state.selected_hd)
         return
 
-    # ── KPI ────────────────────────────────────────────────
-    tong_hd = len(df)
-    dang_th = len(df[df["Trạng thái"]=="Đang thực hiện"])
-    con_no  = df["Còn lại"].sum()
-    tong_dt = df["Tổng tiền"].sum()
-    c1,c2,c3,c4 = st.columns(4)
-    with c1: st.markdown(f'<div class="metric-card"><h2>{tong_hd}</h2><p>📋 Tổng hợp đồng</p></div>', unsafe_allow_html=True)
-    with c2: st.markdown(f'<div class="metric-card"><h2 style="color:#e67e22;">{dang_th}</h2><p>⚡ Đang thực hiện</p></div>', unsafe_allow_html=True)
-    with c3: st.markdown(f'<div class="metric-card"><h2 style="color:#E8D08A;">{tong_dt/1_000_000:.1f}M</h2><p>💰 Tổng doanh thu</p></div>', unsafe_allow_html=True)
-    with c4: st.markdown(f'<div class="metric-card"><h2 style="color:#e74c3c;">{con_no/1_000_000:.1f}M</h2><p>⚠️ Còn nợ</p></div>', unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
     # ── Tìm kiếm & lọc ────────────────────────────────────
     c1, c2 = st.columns([3,1])
     with c1: search = st.text_input("🔍 Tìm theo tên, SĐT, mã HĐ...", placeholder="Nhập từ khoá...", label_visibility="collapsed")
@@ -2113,17 +2184,6 @@ def page_lichhens():
 
         # Stats
         df_month = df[df["Ngày"].str.startswith(f"{sel_year}-{sel_month:02d}")]
-        c1,c2,c3,c4 = st.columns(4)
-        for i,(loai,color) in enumerate(LOAI_COLORS.items()):
-            cnt = len(df_month[df_month["Loại"]==loai])
-            [c1,c2,c3,c4][i].markdown(
-                f'<div style="background:{color}22;border:1px solid {color}55;border-radius:8px;'
-                f'padding:10px;text-align:center;">'
-                f'<div style="font-size:1.5rem;font-weight:800;color:{color};">{cnt}</div>'
-                f'<div style="font-size:0.72rem;color:{color};">{loai}</div></div>',
-                unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
 
         # Build calendar grid
         import calendar
@@ -2210,30 +2270,7 @@ def page_makeup():
         "Makeup cưới":   "#f39c12",
     }
 
-    # KPI
-    tong    = len(df)
-    chua_giao = len(df[df["Trạng thái"]=="Chưa giao"])
-    cho_xn  = len(df[df["Trạng thái"]=="Chờ xác nhận"])
-    hoan_th = len(df[df["Trạng thái"]=="Hoàn thành"])
-    c1,c2,c3,c4 = st.columns(4)
-    with c1: st.markdown(f'<div class="metric-card"><h2>{tong}</h2><p>Tổng lịch</p></div>', unsafe_allow_html=True)
-    with c2: st.markdown(f'<div class="metric-card"><h2 style="color:#e74c3c;">{chua_giao}</h2><p>⚠️ Chưa giao</p></div>', unsafe_allow_html=True)
-    with c3: st.markdown(f'<div class="metric-card"><h2 style="color:#e67e22;">{cho_xn}</h2><p>🕐 Chờ xác nhận</p></div>', unsafe_allow_html=True)
-    with c4: st.markdown(f'<div class="metric-card"><h2 style="color:#27ae60;">{hoan_th}</h2><p>✅ Hoàn thành</p></div>', unsafe_allow_html=True)
 
-    # Counts per type
-    st.markdown("<br>", unsafe_allow_html=True)
-    mc1,mc2,mc3 = st.columns(3)
-    for i,(loai,color) in enumerate(MU_COLORS.items()):
-        cnt = len(df[df["Loại makeup"]==loai])
-        [mc1,mc2,mc3][i].markdown(
-            f'<div style="background:{color}18;border:1px solid {color}44;border-radius:8px;'
-            f'padding:14px;text-align:center;">'
-            f'<div style="font-size:1.8rem;font-weight:800;color:{color};">{cnt}</div>'
-            f'<div style="font-size:0.78rem;color:{color};">{loai}</div></div>',
-            unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
     tab1, tab2 = st.tabs(["📋 Danh sách lịch makeup", "➕ Thêm lịch makeup"])
 
     with tab1:
@@ -2322,23 +2359,12 @@ def page_hauky():
     df   = st.session_state.df_hauky
     today_str = str(date.today())
 
-    # KPI
-    tong     = len(df)
-    chua_giao= len(df[df["Trạng thái HK"]=="Chưa giao"])
-    dang_lam = len(df[df["Trạng thái HK"]=="Đang làm"])
-    cho_xl   = len(df[df["Trạng thái HK"]=="Chờ xử lý"])
-    hoan_th  = len(df[df["Trạng thái HK"]=="Hoàn thành"])
-
     # Quá hạn
     qua_han = df[(df["Trạng thái HK"]!="Hoàn thành") &
                  (df["Ngày hẹn trả"] != "") &
                  (df["Ngày hẹn trả"] < today_str)]
-
-    c1,c2,c3,c4 = st.columns(4)
-    with c1: st.markdown(f'<div class="metric-card"><h2>{tong}</h2><p>Tổng công việc</p></div>', unsafe_allow_html=True)
-    with c2: st.markdown(f'<div class="metric-card"><h2 style="color:#e74c3c;">{chua_giao}</h2><p>Chưa giao việc</p></div>', unsafe_allow_html=True)
-    with c3: st.markdown(f'<div class="metric-card"><h2 style="color:#e67e22;">{dang_lam + cho_xl}</h2><p>Đang xử lý</p></div>', unsafe_allow_html=True)
-    with c4: st.markdown(f'<div class="metric-card"><h2 style="color:#27ae60;">{hoan_th}</h2><p>Hoàn thành</p></div>', unsafe_allow_html=True)
+    chua_giao= len(df[df["Trạng thái HK"]=="Chưa giao"])
+    hoan_th  = len(df[df["Trạng thái HK"]=="Hoàn thành"])
 
     # Cảnh báo
     if len(qua_han) > 0:
