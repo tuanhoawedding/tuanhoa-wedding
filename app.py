@@ -212,7 +212,10 @@ USERS = {
 }
 
 ROLE_MENUS = {
-    "Admin":       ["🏠 Tổng quan", "👥 Khách hàng & Tiến độ", "📅 Lịch làm việc", "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ", "⚙️ Quản lý nhân sự"],
+    "Admin":       ["🏠 Tổng quan", "👥 Khách hàng & Tiến độ", "📅 Lịch làm việc",
+                    "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ",
+                    "💰 Thu Chi", "💵 Tính Lương", "📊 Thuế & Báo cáo",
+                    "⚙️ Quản lý nhân sự"],
     "Lễ tân":      ["🏠 Tổng quan", "👥 Khách hàng & Tiến độ", "📅 Lịch làm việc", "📦 Giao nhận đồ"],
     "Quản lý kho": ["🏠 Tổng quan", "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ"],
     "Makeup":      ["🏠 Tổng quan", "📅 Lịch làm việc"],
@@ -306,6 +309,30 @@ def init_session():
             {"Mã GN":"GN002","Tên khách":"Phạm Minh Tuấn","Mã trang phục":"S002", "Loại":"Suit",    "Ngày mượn":"2025-07-28","Ngày hẹn trả":"2025-07-30","Trạng thái":"Đã trả"},
             {"Mã GN":"GN003","Tên khách":"Lê Thị Hồng",   "Mã trang phục":"AD002","Loại":"Áo dài",  "Ngày mượn":"2025-08-05","Ngày hẹn trả":"2025-08-07","Trạng thái":"Đã giao"},
         ])
+
+    # ── Thu Chi ──────────────────────────────────────────
+    if "df_thu_chi" not in st.session_state:
+        st.session_state.df_thu_chi = pd.DataFrame([
+            {"Mã":"TC001","Ngày":"2025-08-01","Loại":"Thu","Danh mục":"Dịch vụ chụp ảnh","Mô tả":"Khách Lê Thị Hồng - Gói Luxury","Số tiền":15000000,"Ghi chú":""},
+            {"Mã":"TC002","Ngày":"2025-08-03","Loại":"Chi","Danh mục":"Lương nhân viên","Mô tả":"Lương tháng 8","Số tiền":25000000,"Ghi chú":""},
+            {"Mã":"TC003","Ngày":"2025-08-05","Loại":"Thu","Danh mục":"Cho thuê trang phục","Mô tả":"Khách Nguyễn Thị Mai - Váy VIP","Số tiền":3500000,"Ghi chú":""},
+            {"Mã":"TC004","Ngày":"2025-08-07","Loại":"Chi","Danh mục":"Vật tư - Makeup","Mô tả":"Mua son phấn Fenty, MAC","Số tiền":4200000,"Ghi chú":""},
+            {"Mã":"TC005","Ngày":"2025-08-08","Loại":"Thu","Danh mục":"Dịch vụ makeup","Mô tả":"Khách Trần Văn Hùng - Gói Basic","Số tiền":5000000,"Ghi chú":""},
+            {"Mã":"TC006","Ngày":"2025-08-10","Loại":"Chi","Danh mục":"Tiền điện nước","Mô tả":"Hóa đơn tháng 8","Số tiền":1800000,"Ghi chú":""},
+            {"Mã":"TC007","Ngày":"2025-08-12","Loại":"Chi","Danh mục":"Giặt là trang phục","Mô tả":"Giặt hấy 12 bộ váy","Số tiền":600000,"Ghi chú":""},
+            {"Mã":"TC008","Ngày":"2025-08-15","Loại":"Thu","Danh mục":"Dịch vụ design","Mô tả":"Album ảnh cưới Phạm Minh Tuấn","Số tiền":4000000,"Ghi chú":""},
+        ])
+
+    # ── Nhân sự & Lương ───────────────────────────────────
+    if "df_nhansu" not in st.session_state:
+        st.session_state.df_nhansu = pd.DataFrame([
+            {"Mã NV":"NV001","Họ tên":"Phạm Thị Hoa",    "Chức vụ":"Makeup Artist","Phòng ban":"Makeup",    "Lương cơ bản":8000000, "Hệ số":1.2,"Số ngày công":26,"Thưởng":500000, "Khấu trừ":0},
+            {"Mã NV":"NV002","Họ tên":"Đỗ Văn Ảnh",      "Chức vụ":"Nhiếp ảnh gia","Phòng ban":"Nhiếp ảnh","Lương cơ bản":10000000,"Hệ số":1.3,"Số ngày công":24,"Thưởng":1000000,"Khấu trừ":0},
+            {"Mã NV":"NV003","Họ tên":"Nguyễn Thiết Kế",  "Chức vụ":"Designer",     "Phòng ban":"Design",   "Lương cơ bản":9000000, "Hệ số":1.2,"Số ngày công":26,"Thưởng":0,      "Khấu trừ":0},
+            {"Mã NV":"NV004","Họ tên":"Trần Thị Lan",     "Chức vụ":"Lễ tân",       "Phòng ban":"Lễ tân",   "Lương cơ bản":6000000, "Hệ số":1.0,"Số ngày công":26,"Thưởng":200000, "Khấu trừ":0},
+            {"Mã NV":"NV005","Họ tên":"Lê Văn Kho",       "Chức vụ":"Quản lý kho",  "Phòng ban":"Kho",      "Lương cơ bản":7000000, "Hệ số":1.1,"Số ngày công":25,"Thưởng":300000, "Khấu trừ":0},
+        ])
+
 
 init_session()
 
@@ -1131,6 +1158,469 @@ def page_borrow():
                     st.success(f"✅ Đã ghi nhận giao **{ma_tp_giao}** ({loai_tp_giao}) cho **{ten_kh}**")
                     st.rerun()
 
+
+# ============================================================
+# TRANG: THU CHI
+# ============================================================
+def page_thu_chi():
+    st.markdown('<div class="section-header">💰 Quản lý Thu Chi Doanh Nghiệp</div>', unsafe_allow_html=True)
+    df = st.session_state.df_thu_chi
+
+    # ── KPI tổng quan ─────────────────────────────────────
+    tong_thu = df[df["Loại"]=="Thu"]["Số tiền"].sum()
+    tong_chi = df[df["Loại"]=="Chi"]["Số tiền"].sum()
+    loi_nhuan = tong_thu - tong_chi
+    c1,c2,c3 = st.columns(3)
+    with c1:
+        st.markdown(f'''<div class="metric-card">
+            <h2 style="color:#27ae60;">{tong_thu/1_000_000:.1f}M</h2>
+            <p>💚 Tổng Thu</p></div>''', unsafe_allow_html=True)
+    with c2:
+        st.markdown(f'''<div class="metric-card">
+            <h2 style="color:#e74c3c;">{tong_chi/1_000_000:.1f}M</h2>
+            <p>❤️ Tổng Chi</p></div>''', unsafe_allow_html=True)
+    with c3:
+        color = "#27ae60" if loi_nhuan >= 0 else "#e74c3c"
+        icon  = "📈" if loi_nhuan >= 0 else "📉"
+        st.markdown(f'''<div class="metric-card">
+            <h2 style="color:{color};">{loi_nhuan/1_000_000:.1f}M</h2>
+            <p>{icon} Lợi nhuận</p></div>''', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    tab1, tab2, tab3 = st.tabs(["📊 Tổng hợp", "📋 Chi tiết giao dịch", "➕ Thêm giao dịch"])
+
+    with tab1:
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown("**💚 Thu theo danh mục**")
+            thu_cat = df[df["Loại"]=="Thu"].groupby("Danh mục")["Số tiền"].sum().reset_index()
+            thu_cat.columns = ["Danh mục","Số tiền"]
+            thu_cat["Tỷ lệ"] = (thu_cat["Số tiền"]/tong_thu*100).round(1).astype(str) + "%"
+            thu_cat["Số tiền (đ)"] = thu_cat["Số tiền"].apply(lambda x: f"{int(x):,}".replace(",","."))
+            st.dataframe(thu_cat[["Danh mục","Số tiền (đ)","Tỷ lệ"]], use_container_width=True, hide_index=True)
+        with c2:
+            st.markdown("**❤️ Chi theo danh mục**")
+            chi_cat = df[df["Loại"]=="Chi"].groupby("Danh mục")["Số tiền"].sum().reset_index()
+            chi_cat.columns = ["Danh mục","Số tiền"]
+            chi_cat["Tỷ lệ"] = (chi_cat["Số tiền"]/tong_chi*100).round(1).astype(str) + "%"
+            chi_cat["Số tiền (đ)"] = chi_cat["Số tiền"].apply(lambda x: f"{int(x):,}".replace(",","."))
+            st.dataframe(chi_cat[["Danh mục","Số tiền (đ)","Tỷ lệ"]], use_container_width=True, hide_index=True)
+
+        # Biểu đồ bar
+        st.markdown("**📊 Biểu đồ Thu vs Chi theo danh mục**")
+        import json
+        thu_data = df[df["Loại"]=="Thu"].groupby("Danh mục")["Số tiền"].sum()
+        chi_data = df[df["Loại"]=="Chi"].groupby("Danh mục")["Số tiền"].sum()
+        all_cats  = sorted(set(list(thu_data.index) + list(chi_data.index)))
+        thu_vals  = [thu_data.get(c,0)/1_000_000 for c in all_cats]
+        chi_vals  = [chi_data.get(c,0)/1_000_000 for c in all_cats]
+        chart_html = f"""
+        <div style="background:#2A2618;border:1px solid #C9A84C33;border-radius:10px;padding:16px;margin-top:8px;">
+            <div style="display:flex;gap:16px;margin-bottom:12px;">
+                <span style="color:#27ae60;font-size:0.8rem;">■ Thu (triệu đ)</span>
+                <span style="color:#e74c3c;font-size:0.8rem;">■ Chi (triệu đ)</span>
+            </div>
+            {"".join([f'''
+            <div style="margin-bottom:10px;">
+                <div style="font-size:0.72rem;color:#C9A84C;margin-bottom:3px;">{c}</div>
+                <div style="display:flex;gap:4px;align-items:center;">
+                    <div style="height:16px;width:{min(tv/max(max(thu_vals),max(chi_vals),0.1)*260,260):.0f}px;
+                                background:linear-gradient(90deg,#27ae60,#2ecc71);border-radius:3px;min-width:3px;"></div>
+                    <span style="font-size:0.7rem;color:#27ae60;">{tv:.1f}M</span>
+                </div>
+                <div style="display:flex;gap:4px;align-items:center;margin-top:2px;">
+                    <div style="height:16px;width:{min(cv/max(max(thu_vals),max(chi_vals),0.1)*260,260):.0f}px;
+                                background:linear-gradient(90deg,#e74c3c,#c0392b);border-radius:3px;min-width:3px;"></div>
+                    <span style="font-size:0.7rem;color:#e74c3c;">{cv:.1f}M</span>
+                </div>
+            </div>
+            ''' for c,tv,cv in zip(all_cats,thu_vals,chi_vals)])}
+        </div>"""
+        st.markdown(chart_html, unsafe_allow_html=True)
+
+    with tab2:
+        loai_f = st.selectbox("Lọc loại", ["Tất cả","Thu","Chi"])
+        df_show = df if loai_f=="Tất cả" else df[df["Loại"]==loai_f]
+        df_disp = df_show.copy()
+        df_disp["Số tiền"] = df_disp["Số tiền"].apply(lambda x: f"{int(x):,}".replace(",",".") + "đ")
+        st.dataframe(df_disp, use_container_width=True, hide_index=True)
+
+    with tab3:
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown("**➕ Thêm giao dịch mới**")
+            with st.form("form_add_tc"):
+                ma_tc   = f"TC{len(df)+1:03d}"
+                ngay_tc = st.date_input("📅 Ngày", value=date.today())
+                loai_tc = st.selectbox("Loại", ["Thu","Chi"])
+                dm_thu  = ["Dịch vụ chụp ảnh","Dịch vụ makeup","Cho thuê trang phục","Dịch vụ design","Khác"]
+                dm_chi  = ["Lương nhân viên","Vật tư - Makeup","Tiền điện nước","Giặt là trang phục","Marketing","Thuê mặt bằng","Khác"]
+                dm_tc   = st.selectbox("Danh mục", dm_thu if loai_tc=="Thu" else dm_chi)
+                mo_ta   = st.text_input("Mô tả")
+                so_tien = st.number_input("Số tiền (đồng)", min_value=0, step=100000, value=1000000)
+                ghi_chu = st.text_input("Ghi chú")
+                if st.form_submit_button("✅ Thêm giao dịch", use_container_width=True):
+                    new_row = {"Mã":ma_tc,"Ngày":str(ngay_tc),"Loại":loai_tc,
+                               "Danh mục":dm_tc,"Mô tả":mo_ta,"Số tiền":so_tien,"Ghi chú":ghi_chu}
+                    st.session_state.df_thu_chi = pd.concat(
+                        [st.session_state.df_thu_chi, pd.DataFrame([new_row])], ignore_index=True)
+                    st.success(f"✅ Đã thêm giao dịch {loai_tc}: {so_tien:,}đ".replace(",",".")); st.rerun()
+
+
+# ============================================================
+# TRANG: TÍNH LƯƠNG
+# ============================================================
+def page_luong():
+    st.markdown('<div class="section-header">💵 Tính Lương Nhân Sự</div>', unsafe_allow_html=True)
+    df = st.session_state.df_nhansu.copy()
+
+    # Hằng số BHXH, BHYT, BHTN (2024)
+    BHXH_NLD  = 0.08   # 8% BHXH người lao động
+    BHYT_NLD  = 0.015  # 1.5% BHYT
+    BHTN_NLD  = 0.01   # 1% BHTN
+    TONG_BH   = BHXH_NLD + BHYT_NLD + BHTN_NLD  # 10.5%
+    GIAM_TRU_BT = 11_000_000  # Giảm trừ bản thân 11 triệu
+
+    BHXH_DN  = 0.175   # 17.5% BHXH doanh nghiệp
+    BHYT_DN  = 0.03    # 3% BHYT
+    BHTN_DN  = 0.01    # 1% BHTN
+    TONG_BH_DN = BHXH_DN + BHYT_DN + BHTN_DN  # 21.5%
+
+    def tinh_thue_tncn(thu_nhap_chiu_thue):
+        """Thuế TNCN lũy tiến 7 bậc 2024"""
+        bac = [
+            (5_000_000,   0.05),
+            (5_000_000,   0.10),
+            (8_000_000,   0.15),
+            (14_000_000,  0.20),
+            (20_000_000,  0.25),
+            (28_000_000,  0.30),
+            (float("inf"),0.35),
+        ]
+        thue, con_lai = 0, max(thu_nhap_chiu_thue, 0)
+        for muc, ts in bac:
+            if con_lai <= 0: break
+            chiu = min(con_lai, muc)
+            thue += chiu * ts
+            con_lai -= chiu
+        return thue
+
+    # Tính toán lương
+    rows_calc = []
+    for _, r in df.iterrows():
+        luong_cb   = r["Lương cơ bản"]
+        he_so      = r["Hệ số"]
+        ngay_cong  = r["Số ngày công"]
+        thuong     = r["Thưởng"]
+        khau_tru   = r["Khấu trừ"]
+
+        luong_thuc = luong_cb * he_so * (ngay_cong / 26)
+        tong_thu_nhap = luong_thuc + thuong
+
+        bh_nld     = luong_cb * TONG_BH
+        thu_nhap_chiu_thue = tong_thu_nhap - bh_nld - GIAM_TRU_BT
+        thue_tncn  = tinh_thue_tncn(thu_nhap_chiu_thue)
+        tong_khau  = bh_nld + thue_tncn + khau_tru
+        luong_net  = tong_thu_nhap - tong_khau
+
+        bh_dn      = luong_cb * TONG_BH_DN
+        cp_dn      = luong_thuc + thuong + bh_dn
+
+        rows_calc.append({
+            "Mã NV":      r["Mã NV"],
+            "Họ tên":     r["Họ tên"],
+            "Chức vụ":    r["Chức vụ"],
+            "Ngày công":  ngay_cong,
+            "Lương thực": int(luong_thuc),
+            "Thưởng":     int(thuong),
+            "BH người LD":int(bh_nld),
+            "Thuế TNCN":  int(thue_tncn),
+            "Lương NET":  int(luong_net),
+            "CP doanh nghiệp": int(cp_dn),
+        })
+    df_calc = pd.DataFrame(rows_calc)
+
+    # ── KPI ────────────────────────────────────────────────
+    tong_net = df_calc["Lương NET"].sum()
+    tong_cp  = df_calc["CP doanh nghiệp"].sum()
+    c1,c2,c3 = st.columns(3)
+    with c1: st.markdown(f'''<div class="metric-card"><h2>{len(df_calc)}</h2><p>Số nhân viên</p></div>''', unsafe_allow_html=True)
+    with c2: st.markdown(f'''<div class="metric-card"><h2 style="color:#E8D08A;">{tong_net/1_000_000:.1f}M</h2><p>💵 Tổng lương NET</p></div>''', unsafe_allow_html=True)
+    with c3: st.markdown(f'''<div class="metric-card"><h2 style="color:#e74c3c;">{tong_cp/1_000_000:.1f}M</h2><p>🏢 Chi phí DN thực tế</p></div>''', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    tab1, tab2, tab3 = st.tabs(["📊 Bảng lương tháng", "👤 Chi tiết từng nhân viên", "✏️ Cập nhật dữ liệu"])
+
+    with tab1:
+        st.markdown("**📋 Bảng lương chi tiết tháng**")
+        df_disp = df_calc.copy()
+        for col in ["Lương thực","Thưởng","BH người LD","Thuế TNCN","Lương NET","CP doanh nghiệp"]:
+            df_disp[col] = df_disp[col].apply(lambda x: f"{int(x):,}".replace(",",".") + "đ")
+        st.dataframe(df_disp, use_container_width=True, hide_index=True)
+
+        st.markdown("""
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:8px;padding:12px;margin-top:12px;font-size:0.78rem;">
+            <div style="color:#C9A84C;font-weight:700;margin-bottom:6px;">📌 Ghi chú các khoản khấu trừ (theo luật 2024)</div>
+            <div style="color:#FAF6EE88;line-height:1.8;">
+                • BHXH người lao động: <b style="color:#FAF6EE;">8%</b> lương cơ bản<br>
+                • BHYT người lao động: <b style="color:#FAF6EE;">1.5%</b> lương cơ bản<br>
+                • BHTN người lao động: <b style="color:#FAF6EE;">1%</b> lương cơ bản<br>
+                • Giảm trừ gia cảnh bản thân: <b style="color:#FAF6EE;">11,000,000đ/tháng</b><br>
+                • Thuế TNCN: Lũy tiến 7 bậc từ 5% → 35%
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with tab2:
+        chon_nv = st.selectbox("Chọn nhân viên", df_calc["Họ tên"].tolist())
+        row_nv  = df_calc[df_calc["Họ tên"]==chon_nv].iloc[0]
+        row_ns  = st.session_state.df_nhansu[st.session_state.df_nhansu["Họ tên"]==chon_nv].iloc[0]
+
+        c1,c2 = st.columns(2)
+        with c1:
+            st.markdown(f"""
+            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;">
+                <div style="color:#C9A84C;font-weight:800;font-size:1rem;margin-bottom:12px;">
+                    👤 {row_nv["Họ tên"]} — {row_nv["Chức vụ"]}
+                </div>
+                <div style="line-height:2;font-size:0.85rem;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">Lương cơ bản</span>
+                        <span style="color:#FAF6EE;">{int(row_ns["Lương cơ bản"]):,}đ</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">Hệ số lương</span>
+                        <span style="color:#FAF6EE;">× {row_ns["Hệ số"]}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">Ngày công</span>
+                        <span style="color:#FAF6EE;">{row_nv["Ngày công"]}/26 ngày</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">Lương thực tế</span>
+                        <span style="color:#E8D08A;font-weight:700;">{int(row_nv["Lương thực"]):,}đ</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">Thưởng</span>
+                        <span style="color:#27ae60;">+{int(row_nv["Thưởng"]):,}đ</span>
+                    </div>
+                </div>
+            </div>
+            """.replace(",","."), unsafe_allow_html=True)
+        with c2:
+            st.markdown(f"""
+            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;">
+                <div style="color:#e74c3c;font-weight:800;font-size:0.9rem;margin-bottom:12px;">
+                    📉 Các khoản khấu trừ
+                </div>
+                <div style="line-height:2;font-size:0.85rem;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">BHXH+BHYT+BHTN (10.5%)</span>
+                        <span style="color:#e74c3c;">-{int(row_nv["BH người LD"]):,}đ</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">Thuế TNCN</span>
+                        <span style="color:#e74c3c;">-{int(row_nv["Thuế TNCN"]):,}đ</span>
+                    </div>
+                    <div style="height:1px;background:#C9A84C33;margin:8px 0;"></div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE;font-weight:700;">💵 Lương NET thực lĩnh</span>
+                        <span style="color:#27ae60;font-weight:800;font-size:1rem;">{int(row_nv["Lương NET"]):,}đ</span>
+                    </div>
+                    <div style="height:1px;background:#C9A84C33;margin:8px 0;"></div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">Chi phí thực tế doanh nghiệp</span>
+                        <span style="color:#e67e22;font-weight:700;">{int(row_nv["CP doanh nghiệp"]):,}đ</span>
+                    </div>
+                </div>
+            </div>
+            """.replace(",","."), unsafe_allow_html=True)
+
+    with tab3:
+        st.markdown("**✏️ Cập nhật thông tin lương nhân viên**")
+        with st.form("form_update_luong"):
+            chon_nv2  = st.selectbox("Chọn nhân viên", st.session_state.df_nhansu["Họ tên"].tolist())
+            row_edit  = st.session_state.df_nhansu[st.session_state.df_nhansu["Họ tên"]==chon_nv2].iloc[0]
+            c1, c2   = st.columns(2)
+            with c1:
+                new_cb   = st.number_input("Lương cơ bản", value=int(row_edit["Lương cơ bản"]), step=500000)
+                new_hs   = st.number_input("Hệ số", value=float(row_edit["Hệ số"]), step=0.1, format="%.1f")
+            with c2:
+                new_nc   = st.number_input("Số ngày công", value=int(row_edit["Số ngày công"]), min_value=0, max_value=31)
+                new_th   = st.number_input("Thưởng", value=int(row_edit["Thưởng"]), step=100000)
+            new_kt = st.number_input("Khấu trừ khác", value=int(row_edit["Khấu trừ"]), step=100000)
+            if st.form_submit_button("💾 Cập nhật lương", use_container_width=True):
+                mask = st.session_state.df_nhansu["Họ tên"] == chon_nv2
+                st.session_state.df_nhansu.loc[mask,"Lương cơ bản"]  = new_cb
+                st.session_state.df_nhansu.loc[mask,"Hệ số"]         = new_hs
+                st.session_state.df_nhansu.loc[mask,"Số ngày công"]  = new_nc
+                st.session_state.df_nhansu.loc[mask,"Thưởng"]        = new_th
+                st.session_state.df_nhansu.loc[mask,"Khấu trừ"]      = new_kt
+                st.success(f"✅ Đã cập nhật lương cho {chon_nv2}!"); st.rerun()
+
+
+# ============================================================
+# TRANG: THUẾ & BÁO CÁO
+# ============================================================
+def page_thue():
+    st.markdown('<div class="section-header">📊 Thuế & Báo cáo Tài chính</div>', unsafe_allow_html=True)
+
+    # Hằng số thuế ngành dịch vụ ảnh cưới (2024)
+    THUE_GTGT    = 0.10   # VAT 10% dịch vụ nhiếp ảnh / makeup
+    THUE_TNDN    = 0.20   # 20% TNDN (doanh nghiệp vừa và nhỏ)
+    MUC_MIEN_TNDN= 200_000_000  # Được giảm 30% nếu DT < 200M/năm (SME)
+    BHXH_DN      = 0.175
+    BHYT_DN      = 0.03
+    BHTN_DN      = 0.01
+
+    df_tc  = st.session_state.df_thu_chi
+    df_ns  = st.session_state.df_nhansu
+
+    tong_thu = df_tc[df_tc["Loại"]=="Thu"]["Số tiền"].sum()
+    tong_chi = df_tc[df_tc["Loại"]=="Chi"]["Số tiền"].sum()
+
+    # ── GTGT ─────────────────────────────────────────────
+    thue_gtgt_phai_nop = tong_thu * THUE_GTGT
+    thue_gtgt_dau_vao  = tong_chi * THUE_GTGT * 0.5  # Ước tính 50% chi phí có hóa đơn
+    gtgt_net           = max(thue_gtgt_phai_nop - thue_gtgt_dau_vao, 0)
+
+    # ── TNDN ─────────────────────────────────────────────
+    luong_cp   = sum(r["Lương cơ bản"] * r["Hệ số"] * (r["Số ngày công"]/26)
+                     + r["Thưởng"]
+                     + r["Lương cơ bản"] * (BHXH_DN + BHYT_DN + BHTN_DN)
+                     for _, r in df_ns.iterrows())
+    loi_nhuan_tt = tong_thu - tong_chi - luong_cp
+    thue_tndn    = max(loi_nhuan_tt, 0) * THUE_TNDN
+    if tong_thu * 12 < MUC_MIEN_TNDN:
+        thue_tndn = thue_tndn * 0.70  # Giảm 30% cho SME
+
+    tong_thue = gtgt_net + thue_tndn
+
+    # ── KPI ─────────────────────────────────────────────
+    c1,c2,c3,c4 = st.columns(4)
+    with c1: st.markdown(f'''<div class="metric-card"><h2 style="color:#e67e22;">{gtgt_net/1_000_000:.1f}M</h2><p>🧾 Thuế GTGT nộp</p></div>''', unsafe_allow_html=True)
+    with c2: st.markdown(f'''<div class="metric-card"><h2 style="color:#e74c3c;">{thue_tndn/1_000_000:.1f}M</h2><p>🏢 Thuế TNDN</p></div>''', unsafe_allow_html=True)
+    with c3: st.markdown(f'''<div class="metric-card"><h2 style="color:#C9A84C;">{tong_thue/1_000_000:.1f}M</h2><p>📊 Tổng thuế ước tính</p></div>''', unsafe_allow_html=True)
+    with c4: st.markdown(f'''<div class="metric-card"><h2 style="color:#27ae60;">{max(loi_nhuan_tt-thue_tndn,0)/1_000_000:.1f}M</h2><p>💰 Lợi nhuận sau thuế</p></div>''', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    tab1, tab2 = st.tabs(["📋 Báo cáo chi tiết", "📌 Hướng dẫn kê khai"])
+
+    with tab1:
+        st.markdown("**🧾 1. Thuế Giá trị gia tăng (GTGT) — VAT 10%**")
+        st.markdown(f"""
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;margin-bottom:16px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.85rem;">
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">Doanh thu chịu thuế GTGT (10%)</div>
+                    <div style="color:#27ae60;font-weight:700;font-size:1rem;">{int(tong_thu):,}đ</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">Thuế GTGT đầu ra phải nộp</div>
+                    <div style="color:#e67e22;font-weight:700;font-size:1rem;">{int(thue_gtgt_phai_nop):,}đ</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">Thuế GTGT đầu vào được khấu trừ (ước)</div>
+                    <div style="color:#3498db;font-weight:700;font-size:1rem;">{int(thue_gtgt_dau_vao):,}đ</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">💳 Số thuế GTGT phải nộp</div>
+                    <div style="color:#e74c3c;font-weight:800;font-size:1.1rem;">{int(gtgt_net):,}đ</div>
+                </div>
+            </div>
+        </div>
+        """.replace(",","."), unsafe_allow_html=True)
+
+        st.markdown("**🏢 2. Thuế Thu nhập doanh nghiệp (TNDN) — 20%**")
+        st.markdown(f"""
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;margin-bottom:16px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.85rem;">
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">Tổng doanh thu</div>
+                    <div style="color:#27ae60;font-weight:700;">{int(tong_thu):,}đ</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">Chi phí vận hành</div>
+                    <div style="color:#e74c3c;font-weight:700;">-{int(tong_chi):,}đ</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">Chi phí lương (tổng)</div>
+                    <div style="color:#e74c3c;font-weight:700;">-{int(luong_cp):,}đ</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">Lợi nhuận trước thuế</div>
+                    <div style="color:#E8D08A;font-weight:700;">{int(loi_nhuan_tt):,}đ</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">Thuế suất TNDN</div>
+                    <div style="color:#FAF6EE;font-weight:700;">20% {"(giảm 30% SME)" if tong_thu*12<MUC_MIEN_TNDN else ""}</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE88;margin-bottom:4px;">💳 Số thuế TNDN phải nộp</div>
+                    <div style="color:#e74c3c;font-weight:800;font-size:1.1rem;">{int(thue_tndn):,}đ</div>
+                </div>
+            </div>
+        </div>
+        """.replace(",","."), unsafe_allow_html=True)
+
+        st.markdown("**👥 3. BHXH doanh nghiệp đóng**")
+        tong_bh_dn = sum(r["Lương cơ bản"] * (BHXH_DN+BHYT_DN+BHTN_DN) for _,r in df_ns.iterrows())
+        st.markdown(f"""
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;">
+            <div style="font-size:0.85rem;line-height:2;">
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:#FAF6EE88;">BHXH doanh nghiệp đóng (17.5%)</span>
+                    <span style="color:#e74c3c;">{int(sum(r["Lương cơ bản"]*BHXH_DN for _,r in df_ns.iterrows())):,}đ</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:#FAF6EE88;">BHYT doanh nghiệp đóng (3%)</span>
+                    <span style="color:#e74c3c;">{int(sum(r["Lương cơ bản"]*BHYT_DN for _,r in df_ns.iterrows())):,}đ</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:#FAF6EE88;">BHTN doanh nghiệp đóng (1%)</span>
+                    <span style="color:#e74c3c;">{int(sum(r["Lương cơ bản"]*BHTN_DN for _,r in df_ns.iterrows())):,}đ</span>
+                </div>
+                <div style="height:1px;background:#C9A84C33;margin:6px 0;"></div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:#FAF6EE;font-weight:700;">Tổng BHXH doanh nghiệp phải đóng</span>
+                    <span style="color:#e74c3c;font-weight:800;">{int(tong_bh_dn):,}đ</span>
+                </div>
+            </div>
+        </div>
+        """.replace(",","."), unsafe_allow_html=True)
+
+    with tab2:
+        st.markdown("""
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:20px;">
+            <div style="color:#C9A84C;font-weight:800;font-size:1rem;margin-bottom:14px;">
+                📌 Hướng dẫn kê khai thuế — Ngành Nhiếp ảnh & Dịch vụ cưới hỏi
+            </div>
+            <div style="color:#FAF6EE;font-size:0.85rem;line-height:2.2;">
+
+                <div style="color:#E8D08A;font-weight:700;margin-top:8px;">🧾 Thuế GTGT (kê khai hàng tháng/quý)</div>
+                <div style="color:#FAF6EE88;">• Mã ngành: 7420 — Hoạt động nhiếp ảnh</div>
+                <div style="color:#FAF6EE88;">• Thuế suất: <b style="color:#FAF6EE;">10%</b> cho dịch vụ chụp ảnh, makeup, cho thuê trang phục</div>
+                <div style="color:#FAF6EE88;">• Nộp tờ khai mẫu <b style="color:#FAF6EE;">01/GTGT</b> trước ngày 20 tháng sau</div>
+                <div style="color:#FAF6EE88;">• Xuất hóa đơn điện tử cho từng dịch vụ</div>
+
+                <div style="color:#E8D08A;font-weight:700;margin-top:12px;">🏢 Thuế TNDN (kê khai tạm nộp theo quý)</div>
+                <div style="color:#FAF6EE88;">• Thuế suất phổ thông: <b style="color:#FAF6EE;">20%</b></div>
+                <div style="color:#FAF6EE88;">• SME (doanh thu &lt; 200M/năm): được giảm 30% → còn <b style="color:#FAF6EE;">14%</b></div>
+                <div style="color:#FAF6EE88;">• Nộp tạm nộp quý trước ngày <b style="color:#FAF6EE;">30</b> tháng đầu quý tiếp theo</div>
+                <div style="color:#FAF6EE88;">• Quyết toán năm: mẫu <b style="color:#FAF6EE;">03/TNDN</b> trước 31/03 năm sau</div>
+
+                <div style="color:#E8D08A;font-weight:700;margin-top:12px;">👤 Thuế TNCN nhân viên</div>
+                <div style="color:#FAF6EE88;">• Khấu trừ tại nguồn hàng tháng</div>
+                <div style="color:#FAF6EE88;">• Nộp mẫu <b style="color:#FAF6EE;">05/KK-TNCN</b> hàng tháng trước ngày 20</div>
+                <div style="color:#FAF6EE88;">• Quyết toán năm: mẫu <b style="color:#FAF6EE;">05/QTT-TNCN</b> trước 31/03 năm sau</div>
+
+                <div style="color:#E8D08A;font-weight:700;margin-top:12px;">📋 BHXH nộp hàng tháng</div>
+                <div style="color:#FAF6EE88;">• Nộp trước ngày <b style="color:#FAF6EE;">15</b> hàng tháng qua cổng BHXH điện tử</div>
+                <div style="color:#FAF6EE88;">• Tổng tỷ lệ doanh nghiệp + người lao động: <b style="color:#FAF6EE;">31.5%</b> lương cơ bản</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
 # ============================================================
 # TRANG: NHÂN SỰ
 # ============================================================
@@ -1191,6 +1681,9 @@ else:
         "🥻 Kho áo dài":            page_aodai,
         "👔 Kho Suit":              page_suit,
         "📦 Giao nhận đồ":          page_borrow,
+        "💰 Thu Chi":               page_thu_chi,
+        "💵 Tính Lương":            page_luong,
+        "📊 Thuế & Báo cáo":        page_thue,
         "⚙️ Quản lý nhân sự":       page_personnel,
     }
     fn = page_map.get(selected)
