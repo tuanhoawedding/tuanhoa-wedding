@@ -3000,34 +3000,6 @@ def page_hauky():
 
 
 # ============================================================
-# MAIN ROUTER
-# ============================================================
-if not st.session_state.logged_in:
-    show_login()
-else:
-    selected = show_sidebar()
-    page_map = {
-        "🏠 Tổng quan":             page_dashboard,
-        "📋 Hợp đồng":              page_hopdong,
-        "🗓️ Lịch hẹn":              page_lichhens,
-        "💄 Makeup":                page_makeup,
-        "🎨 Hậu kỳ":               page_hauky,
-        "👥 Khách hàng & Tiến độ":  page_customers,
-        "📅 Lịch làm việc":         page_schedule,
-        "👗 Kho váy cưới":          page_vay,
-        "🥻 Kho áo dài":            page_aodai,
-        "👔 Kho Suit":              page_suit,
-        "📦 Giao nhận đồ":          page_borrow,
-        "💰 Thu Chi":               page_thu_chi,
-        "💵 Tính Lương":            page_luong,
-        "📊 Thuế & Báo cáo":        page_thue,
-        "💎 Bảng Giá":               page_bang_gia,
-        "⚙️ Quản lý nhân sự":       page_personnel,
-    }
-    fn = page_map.get(selected)
-    if fn: fn()
-
-# ============================================================
 # TRANG: BẢNG GIÁ DỊCH VỤ
 # ============================================================
 def page_bang_gia():
@@ -3118,3 +3090,30 @@ def page_bang_gia():
                         </div>
                         ''', unsafe_allow_html=True)
 
+# ============================================================
+# MAIN ROUTER
+# ============================================================
+if not st.session_state.logged_in:
+    show_login()
+else:
+    selected = show_sidebar()
+    page_map = {
+        "🏠 Tổng quan":             page_dashboard,
+        "📋 Hợp đồng":              page_hopdong,
+        "🗓️ Lịch hẹn":              page_lichhens,
+        "💄 Makeup":                page_makeup,
+        "🎨 Hậu kỳ":               page_hauky,
+        "👥 Khách hàng & Tiến độ":  page_customers,
+        "📅 Lịch làm việc":         page_schedule,
+        "👗 Kho váy cưới":          page_vay,
+        "🥻 Kho áo dài":            page_aodai,
+        "👔 Kho Suit":              page_suit,
+        "📦 Giao nhận đồ":          page_borrow,
+        "💰 Thu Chi":               page_thu_chi,
+        "💵 Tính Lương":            page_luong,
+        "📊 Thuế & Báo cáo":        page_thue,
+        "💎 Bảng Giá":               page_bang_gia,
+        "⚙️ Quản lý nhân sự":       page_personnel,
+    }
+    fn = page_map.get(selected)
+    if fn: fn()
