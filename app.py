@@ -2346,14 +2346,39 @@ BANG_GIA = {
     },
 }
 
-# Map gói options in contracts to bang gia
+# Map gói options in contracts to bang gia — liên kết trực tiếp từ BANG_GIA
 GOI_CHUP_MAP = {
-    "Gói Studio I":      {"gia": 5900000,  "danh_muc": "Chụp Studio"},
-    "Gói Studio II":     {"gia": 8400000,  "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
-    "Gói Studio III":    {"gia": 10800000, "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
-    "Gói Ảnh Phòng":     {"gia": 13800000, "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
-    "Gói Ảnh Phòng VIP": {"gia": 15800000, "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
-    "Gói Ngoại Cảnh":    {"gia": 3500000,  "danh_muc": "Pre-Wedding"},
+    # Pre-Wedding
+    "Pre-Wedding Combo 1 (2.500k)":        {"gia": 2500000,  "gia_goc": None,     "danh_muc": "Pre-Wedding"},
+    "Pre-Wedding Combo 2 (3.500k)":        {"gia": 3500000,  "gia_goc": None,     "danh_muc": "Pre-Wedding"},
+    "Pre-Wedding Combo 3 (5.500k)":        {"gia": 5500000,  "gia_goc": None,     "danh_muc": "Pre-Wedding"},
+    "Pre-Wedding Combo 4 (8.500k)":        {"gia": 8500000,  "gia_goc": None,     "danh_muc": "Pre-Wedding"},
+    # Chụp Studio
+    "Studio 3.000k (KM từ 3.500k)":       {"gia": 3000000,  "gia_goc": 3500000,  "danh_muc": "Chụp Studio"},
+    "Studio 4.500k (KM từ 5.500k)":       {"gia": 4500000,  "gia_goc": 5500000,  "danh_muc": "Chụp Studio"},
+    "Studio 5.900k (KM từ 6.500k)":       {"gia": 5900000,  "gia_goc": 6500000,  "danh_muc": "Chụp Studio"},
+    "Studio 6.900k (KM từ 7.500k)":       {"gia": 6900000,  "gia_goc": 7500000,  "danh_muc": "Chụp Studio"},
+    # Gói Trọn Gói (Chụp + Ngày Cưới)
+    "Gói Studio I — 5.900k":              {"gia": 5900000,  "gia_goc": 6900000,  "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
+    "Gói Studio II — 8.400k":             {"gia": 8400000,  "gia_goc": 9400000,  "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
+    "Gói Studio III — 10.800k":           {"gia": 10800000, "gia_goc": 11800000, "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
+    "Gói Ảnh Phòng — 13.800k":           {"gia": 13800000, "gia_goc": 14800000, "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
+    "Gói Ảnh Phòng VIP — 15.800k":       {"gia": 15800000, "gia_goc": 16800000, "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
+    # Ngày Cưới + Nạp Tài
+    "Ngày Cưới + Nạp Tài 3.999k":        {"gia": 3999000,  "gia_goc": 4999000,  "danh_muc": "Ngày Cưới + Nạp Tài"},
+    "Ngày Cưới + Nạp Tài 5.999k":        {"gia": 5999000,  "gia_goc": 6999000,  "danh_muc": "Ngày Cưới + Nạp Tài"},
+    "Ngày Cưới + Nạp Tài 7.999k":        {"gia": 7999000,  "gia_goc": 8999000,  "danh_muc": "Ngày Cưới + Nạp Tài"},
+    "Ngày Cưới + Nạp Tài 9.400k":        {"gia": 9400000,  "gia_goc": 10400000, "danh_muc": "Ngày Cưới + Nạp Tài"},
+    "Ngày Cưới + Nạp Tài 12.400k":       {"gia": 12400000, "gia_goc": 13400000, "danh_muc": "Ngày Cưới + Nạp Tài"},
+    # Lễ Chấp Nạp Tài
+    "Lễ Chấp Nạp Tài — Combo 5 Lễ (5.5M)":  {"gia": 5500000,  "gia_goc": None, "danh_muc": "Lễ Chấp Nạp Tài"},
+    "Lễ Chấp Nạp Tài — Combo 5 Lễ (6.8M)":  {"gia": 6800000,  "gia_goc": None, "danh_muc": "Lễ Chấp Nạp Tài"},
+    "Lễ Chấp Nạp Tài — Combo 7 Lễ (11.8M)": {"gia": 11800000, "gia_goc": None, "danh_muc": "Lễ Chấp Nạp Tài"},
+    "Lễ Chấp Nạp Tài — Combo 7 Lễ (13M)":   {"gia": 13000000, "gia_goc": None, "danh_muc": "Lễ Chấp Nạp Tài"},
+    # Baby Care
+    "Baby Care Combo 1 (399k)":           {"gia": 399000,   "gia_goc": None,     "danh_muc": "Baby Care"},
+    "Baby Care Combo 2 (599k)":           {"gia": 599000,   "gia_goc": None,     "danh_muc": "Baby Care"},
+    "Baby Care VIP (999k)":               {"gia": 999000,   "gia_goc": None,     "danh_muc": "Baby Care"},
 }
 
 
@@ -2449,34 +2474,72 @@ def page_hopdong():
     st.markdown("<br>", unsafe_allow_html=True)
     with st.expander("➕ Lập hợp đồng mới"):
         goi_options = list(GOI_CHUP_MAP.keys())
+
+        # Chọn gói → hiển thị giá ngay
+        st.markdown("**🎁 Chọn gói dịch vụ**")
+        goi_select = st.selectbox(
+            "Gói chụp",
+            goi_options,
+            format_func=lambda x: f"{x}  —  {int(GOI_CHUP_MAP[x]['gia']):,}đ".replace(",","."),
+            label_visibility="collapsed",
+            key="goi_select_new"
+        )
+
+        # Tự động lấy giá từ GOI_CHUP_MAP
+        gia_tu_dong = GOI_CHUP_MAP[goi_select]["gia"]
+        gia_goc_td  = GOI_CHUP_MAP[goi_select].get("gia_goc")
+        danh_muc_td = GOI_CHUP_MAP[goi_select]["danh_muc"]
+
+        # Hiển thị preview giá
+        goc_html = f'''<span style="color:#FAF6EE44;text-decoration:line-through;font-size:0.82rem;">{int(gia_goc_td):,}đ  →  </span>'''.replace(",",".") if gia_goc_td else ""
+        st.markdown(f'''
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:8px;
+                    padding:12px 16px;margin:8px 0 14px;">
+            <div style="font-size:0.75rem;color:#FAF6EE66;margin-bottom:4px;">
+                📂 Danh mục: <span style="color:#C9A84C;">{danh_muc_td}</span>
+            </div>
+            <div style="font-size:0.85rem;color:#FAF6EE88;">
+                💰 Giá niêm yết: {goc_html}
+                <span style="color:#E8D08A;font-weight:800;font-size:1.1rem;">{int(gia_tu_dong):,}đ</span>
+            </div>
+        </div>
+        '''.replace(",","."), unsafe_allow_html=True)
+
         with st.form("form_add_hd"):
-            c1,c2 = st.columns(2)
+            c1, c2 = st.columns(2)
             with c1:
                 ma_hd   = f"HD{len(df)+1:03d}"
                 kh_name = st.text_input("👤 Tên cặp đôi (Chú - Cô) *")
                 sdt     = st.text_input("📞 Số điện thoại")
-                goi     = st.selectbox("🎁 Gói chụp", goi_options)
-                tong_t  = st.number_input("💰 Tổng tiền (đ)", min_value=0, step=500000, value=8000000)
-                dat_coc = st.number_input("✅ Đặt cọc (đ)", min_value=0, step=500000, value=2000000)
+                # Tổng tiền = tự động từ GOI_CHUP_MAP, vẫn cho phép điều chỉnh
+                tong_t  = st.number_input(
+                    "💰 Tổng tiền (đ) — tự động từ Bảng Giá",
+                    min_value=0, step=100000,
+                    value=int(GOI_CHUP_MAP[st.session_state.get("goi_select_new", goi_options[0])]["gia"])
+                )
+                dat_coc = st.number_input("✅ Đặt cọc / Tiền cọc (đ)", min_value=0, step=500000, value=2000000)
             with c2:
                 ngay_chup = st.date_input("📅 Ngày chụp", min_value=date.today())
                 ngay_cuoi = st.date_input("💒 Ngày cưới", min_value=date.today())
                 ngay_ah   = st.date_input("💍 Ngày ăn hỏi", min_value=date.today())
                 ngay_tra  = st.date_input("🖼️ Ngày hẹn trả ảnh", min_value=date.today())
             ghi_chu = st.text_area("📝 Ghi chú", height=60)
+
             if st.form_submit_button("✅ Lập hợp đồng", use_container_width=True):
                 if kh_name:
+                    goi_final = st.session_state.get("goi_select_new", goi_options[0])
                     new_row = {
-                        "Mã HĐ":ma_hd,"Khách hàng":kh_name,"SĐT":sdt,
-                        "Gói chụp":goi,"Ngày chụp":str(ngay_chup),"Ngày cưới":str(ngay_cuoi),
-                        "Ngày ăn hỏi":str(ngay_ah),"Ngày trả ảnh":str(ngay_tra),
-                        "Thợ chụp":"","Thợ makeup":"","Lễ tân":"",
-                        "Tổng tiền":tong_t,"Đã TT":dat_coc,"Còn lại":tong_t-dat_coc,
-                        "Trạng thái":"Đặt lịch","Ghi chú":ghi_chu
+                        "Mã HĐ": ma_hd, "Khách hàng": kh_name, "SĐT": sdt,
+                        "Gói chụp": goi_final,
+                        "Ngày chụp": str(ngay_chup), "Ngày cưới": str(ngay_cuoi),
+                        "Ngày ăn hỏi": str(ngay_ah), "Ngày trả ảnh": str(ngay_tra),
+                        "Thợ chụp": "", "Thợ makeup": "", "Lễ tân": "",
+                        "Tổng tiền": tong_t, "Đã TT": dat_coc, "Còn lại": tong_t - dat_coc,
+                        "Trạng thái": "Đặt lịch", "Ghi chú": ghi_chu,
                     }
                     st.session_state.df_hopdong = pd.concat(
                         [st.session_state.df_hopdong, pd.DataFrame([new_row])], ignore_index=True)
-                    st.success(f"✅ Đã lập hợp đồng {ma_hd} cho {kh_name}!")
+                    st.success(f"✅ Đã lập hợp đồng {ma_hd} — {kh_name} — Gói: {goi_final} — {int(tong_t):,}đ".replace(",","."))
                     st.rerun()
                 else:
                     st.error("Vui lòng nhập tên khách hàng!")
@@ -2614,37 +2677,65 @@ def _show_hopdong_detail(ma_hd):
 
     # ── Gói dịch vụ ───────────────────────────────────────
     with st.expander("🎁 Gói dịch vụ & Chi tiết", expanded=True):
-        GOI_INFO = {
-            "Gói Studio I":      {"dv":["Chụp ảnh ½ ngày tại Studio","01 váy VIP, 01 váy Simple","02 vest cao cấp","Makeup & làm tóc","File gốc + 15 file chỉnh sửa nghệ thuật"],"gia_dv":5000000,"gia_sp":3500000},
-            "Gói Studio II":     {"dv":["Chụp ảnh 1 ngày tại Studio","02 váy VIP","02 vest cao cấp","Makeup & làm tóc","File gốc + 25 file chỉnh sửa"],"gia_dv":7000000,"gia_sp":4500000},
-            "Gói Studio III":    {"dv":["Chụp ảnh 1.5 ngày","03 váy VIP + 01 Luxury","03 vest","Makeup & làm tóc","File gốc + 40 file + Video highlight"],"gia_dv":10000000,"gia_sp":5000000},
-            "Gói Ảnh Phòng":     {"dv":["Chụp ảnh phòng ½ ngày","01 váy VIP","01 vest","Makeup & làm tóc","File gốc + 10 file"],"gia_dv":3500000,"gia_sp":2500000},
-            "Gói Ảnh Phòng VIP": {"dv":["Chụp ảnh phòng 1 ngày","02 váy VIP","02 vest cao cấp","Makeup & làm tóc","File gốc + 20 file"],"gia_dv":6000000,"gia_sp":4000000},
-            "Gói Ngoại Cảnh":    {"dv":["Chụp ảnh ngoại cảnh 1 ngày","02 váy VIP + 01 Luxury","02 vest","Makeup & làm tóc","File gốc + 30 file chỉnh sửa"],"gia_dv":8000000,"gia_sp":6000000},
-        }
-        goi = GOI_INFO.get(r["Gói chụp"], {"dv":[],"gia_dv":0,"gia_sp":0})
-        dv_list = "".join([f'<li style="margin:4px 0;color:#FAF6EE88;">{d}</li>' for d in goi["dv"]])
-        thue_dv  = int(goi["gia_dv"] * 0.07)
-        thue_sp  = int(goi["gia_sp"] * 0.015)
+        # Lấy thông tin gói từ GOI_CHUP_MAP
+        goi_key  = r["Gói chụp"]
+        goi_data = GOI_CHUP_MAP.get(goi_key, {"gia": r["Tổng tiền"], "gia_goc": None, "danh_muc": ""})
+        gia_goi  = goi_data["gia"]
+        gia_goc  = goi_data.get("gia_goc")
+        dm_goi   = goi_data.get("danh_muc","")
+
+        # Lấy chi tiết dịch vụ từ BANG_GIA nếu có
+        dv_items = []
+        sp_items = []
+        ud_items = []
+        gc_goi   = ""
+        if dm_goi in BANG_GIA:
+            cat_data = BANG_GIA[dm_goi]
+            for g in cat_data.get("goi", []):
+                if abs(g["gia"] - gia_goi) < 100000:  # match gần đúng
+                    dv_items = g.get("dich_vu", [])
+                    sp_items = g.get("san_pham", [])
+                    ud_items = g.get("uu_dai_ngay_cuoi", [])
+                    gc_goi   = g.get("ghi_chu", "")
+                    break
+
+        dv_html = "".join([f'<li style="margin:3px 0;color:#FAF6EE88;font-size:0.78rem;">{d}</li>' for d in dv_items])
+        sp_html = "".join([f'<li style="margin:3px 0;color:#27ae60;font-size:0.75rem;">{s}</li>' for s in sp_items])
+        ud_html = "".join([f'<li style="margin:3px 0;color:#3498db;font-size:0.75rem;">{u}</li>' for u in ud_items])
+
+        # Bảng tính thuế
+        thue_dv = int(gia_goi * 0.07)
+        thue_sp_val = int(gia_goi * 0.015)
+        goc_html_det = f'''<span style="color:#FAF6EE44;text-decoration:line-through;font-size:0.78rem;">{int(gia_goc):,}đ  →  </span>'''.replace(",",".") if gia_goc else ""
+
         st.markdown(f'''
         <div style="background:#1C1A10;border:1px solid #C9A84C33;border-radius:10px;padding:16px;">
-            <div style="color:#C9A84C;font-weight:700;margin-bottom:8px;">{r["Gói chụp"]}</div>
-            <div style="font-size:0.82rem;margin-bottom:12px;">
-                <div style="color:#FAF6EE88;margin-bottom:4px;">Dịch vụ bao gồm:</div>
-                <ul style="margin:0;padding-left:18px;">{dv_list}</ul>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.82rem;border-top:1px solid #C9A84C22;padding-top:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
                 <div>
-                    <div style="color:#FAF6EE66;">Dịch vụ (thuế 7%)</div>
-                    <div style="color:#FAF6EE;font-weight:700;">{int(goi["gia_dv"]):,}đ</div>
-                    <div style="color:#e67e22;font-size:0.72rem;">Thuế: {thue_dv:,}đ</div>
+                    <div style="color:#C9A84C;font-weight:800;font-size:0.95rem;">{goi_key}</div>
+                    <div style="font-size:0.72rem;color:#FAF6EE66;margin-top:2px;">📂 {dm_goi}</div>
                 </div>
-                <div>
-                    <div style="color:#FAF6EE66;">Sản phẩm (thuế 1.5%)</div>
-                    <div style="color:#FAF6EE;font-weight:700;">{int(goi["gia_sp"]):,}đ</div>
-                    <div style="color:#3498db;font-size:0.72rem;">Thuế: {thue_sp:,}đ</div>
+                <div style="text-align:right;">
+                    {goc_html_det}
+                    <span style="color:#E8D08A;font-weight:800;font-size:1.1rem;">{int(gia_goi):,}đ</span>
                 </div>
             </div>
+            {'<div style="color:#FAF6EE66;font-size:0.72rem;margin-bottom:3px;">📌 Dịch vụ bao gồm:</div><ul style="margin:0 0 10px;padding-left:16px;">' + dv_html + '</ul>' if dv_html else ""}
+            {'<div style="color:#27ae60;font-size:0.72rem;margin-bottom:3px;">🎁 Sản phẩm nhận được:</div><ul style="margin:0 0 10px;padding-left:16px;">' + sp_html + '</ul>' if sp_html else ""}
+            {'<div style="color:#3498db;font-size:0.72rem;margin-bottom:3px;">💒 Ưu đãi Ngày Cưới - Ăn Hỏi:</div><ul style="margin:0 0 10px;padding-left:16px;">' + ud_html + '</ul>' if ud_html else ""}
+            <div style="border-top:1px solid #C9A84C22;padding-top:10px;margin-top:6px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.78rem;">
+                    <div>
+                        <div style="color:#FAF6EE66;">Thuế dịch vụ (7%)</div>
+                        <div style="color:#e67e22;font-weight:700;">{thue_dv:,}đ</div>
+                    </div>
+                    <div>
+                        <div style="color:#FAF6EE66;">Thuế sản phẩm (1.5%)</div>
+                        <div style="color:#3498db;font-weight:700;">{thue_sp_val:,}đ</div>
+                    </div>
+                </div>
+            </div>
+            {'<div style="background:#C9A84C12;border-radius:6px;padding:6px 10px;margin-top:8px;font-size:0.7rem;color:#C9A84C77;">⚠️ ' + gc_goi + '</div>' if gc_goi else ""}
         </div>
         '''.replace(",","."), unsafe_allow_html=True)
 
