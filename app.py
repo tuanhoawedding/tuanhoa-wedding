@@ -216,12 +216,12 @@ ROLE_MENUS = {
                     "🎨 Hậu kỳ", "📅 Lịch làm việc",
                     "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ",
                     "💰 Thu Chi", "💵 Tính Lương", "📊 Thuế & Báo cáo",
-                    "💎 Bảng Giá", "⚙️ Quản lý nhân sự"],
-    "Lễ tân":      ["🏠 Tổng quan", "📋 Hợp đồng", "🗓️ Lịch hẹn", "📦 Giao nhận đồ", "💎 Bảng Giá"],
+                    "💎 Bảng Giá", "🔎 Tra Cứu HĐ", "⚙️ Quản lý nhân sự"],
+    "Lễ tân":      ["🏠 Tổng quan", "📋 Hợp đồng", "🗓️ Lịch hẹn", "📦 Giao nhận đồ", "💎 Bảng Giá", "🔎 Tra Cứu HĐ"],
     "Quản lý kho": ["🏠 Tổng quan", "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ"],
-    "Makeup":      ["🏠 Tổng quan", "💄 Makeup", "🗓️ Lịch hẹn"],
-    "Nhiếp ảnh":   ["🏠 Tổng quan", "📅 Lịch làm việc", "🗓️ Lịch hẹn"],
-    "Design":      ["🏠 Tổng quan", "🎨 Hậu kỳ", "📅 Lịch làm việc"],
+    "Makeup":      ["🏠 Tổng quan", "💄 Makeup", "🗓️ Lịch hẹn", "🔎 Tra Cứu HĐ"],
+    "Nhiếp ảnh":   ["🏠 Tổng quan", "📅 Lịch làm việc", "🗓️ Lịch hẹn", "🔎 Tra Cứu HĐ"],
+    "Design":      ["🏠 Tổng quan", "🎨 Hậu kỳ", "📅 Lịch làm việc", "🔎 Tra Cứu HĐ"],
 }
 
 # Config hiển thị cho từng loại công việc
@@ -621,6 +621,7 @@ def page_dashboard():
         ("💵 Tính Lương",   "💵", "Tính Lương",         f"{len(st.session_state.df_nhansu)} nhân viên",          "#E8D08A", str(len(st.session_state.df_nhansu)),"NV",          2),
         ("📊 Thuế & Báo cáo","📊","Thuế & Báo cáo",    "Kê khai thuế · Sổ kế toán",                            "#e74c3c", "7%","GTGT",                                         2),
         ("💎 Bảng Giá",         "💎","Bảng Giá",          "7 loại dịch vụ · Giá chuẩn TUANHOA",                  "#C9A84C", "7","Danh mục",                                     2),
+        ("🔎 Tra Cứu HĐ",      "🔎","Tra Cứu HĐ",        "Khách hàng tự tra cứu hợp đồng",                       "#3498db", "SĐT","Nhanh",                                        2),
         ("⚙️ Quản lý nhân sự","⚙️","Nhân sự",          f"Phân quyền & tài khoản",                              "#888",    str(len(USERS)),"Tài khoản",                          2),
     ]
 
@@ -3182,6 +3183,275 @@ def page_bang_gia():
                         ''', unsafe_allow_html=True)
 
 # ============================================================
+# TRANG: TRA CỨU HỢP ĐỒNG (Khách hàng tự tra cứu)
+# ============================================================
+def page_tracuu():
+    """Trang tra cứu công khai — không cần đăng nhập nội bộ"""
+    # Init state
+    if "tracuu_result" not in st.session_state:
+        st.session_state.tracuu_result = None
+    if "tracuu_query" not in st.session_state:
+        st.session_state.tracuu_query = ""
+
+    # ── CSS riêng cho trang tra cứu ──────────────────────
+    st.markdown("""
+    <style>
+    .tracuu-card {
+        background: linear-gradient(135deg, #2A2618 0%, #1C1A10 100%);
+        border: 1px solid #C9A84C55;
+        border-radius: 20px;
+        padding: 32px 28px;
+        box-shadow: 0 12px 48px rgba(201,168,76,0.15);
+        max-width: 520px;
+        margin: 0 auto;
+    }
+    .tracuu-header {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+    .tracuu-icon {
+        width: 72px; height: 72px;
+        background: linear-gradient(135deg, #C9A84C, #E8D08A);
+        border-radius: 20px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 14px;
+        box-shadow: 0 8px 24px rgba(201,168,76,0.35);
+    }
+    .result-card {
+        background: #1C1A10;
+        border: 1px solid #C9A84C44;
+        border-radius: 14px;
+        padding: 20px;
+        margin-top: 16px;
+    }
+    .result-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #C9A84C15;
+        font-size: 0.85rem;
+    }
+    .result-row:last-child { border-bottom: none; }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # ── Layout căn giữa ──────────────────────────────────
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        # Header card
+        st.markdown(f"""
+        <div class="tracuu-card">
+            <div class="tracuu-header">
+                <div class="tracuu-icon">💍</div>
+                <div style="font-size:1.4rem;font-weight:800;color:#C9A84C;letter-spacing:0.05em;">
+                    TUANHOA WEDDING
+                </div>
+                <div style="font-size:0.82rem;color:#FAF6EE66;margin-top:4px;">
+                    Tra cứu thông tin hợp đồng của bạn
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ── Form tra cứu ─────────────────────────────────
+        st.markdown("""
+        <div style="background:#2A2618;border:1px solid #C9A84C33;border-radius:14px;padding:24px;">
+        """, unsafe_allow_html=True)
+
+        with st.form("form_tracuu", clear_on_submit=False):
+            st.markdown('<div style="color:#C9A84C;font-weight:700;font-size:0.78rem;letter-spacing:0.08em;margin-bottom:14px;">🔍 NHẬP THÔNG TIN TRA CỨU</div>', unsafe_allow_html=True)
+
+            sdt_input  = st.text_input(
+                "📱 Số điện thoại",
+                placeholder="Nhập số điện thoại...",
+                help="Số điện thoại đã đăng ký khi ký hợp đồng"
+            )
+            ma_hd_input = st.text_input(
+                "📋 Mã hợp đồng",
+                placeholder="VD: HD001, HD002...",
+                help="Mã hợp đồng được cấp khi ký kết"
+            )
+            ten_input  = st.text_input(
+                "👤 Tên khách hàng",
+                placeholder="Nhập tên cô dâu hoặc chú rể...",
+            )
+
+            st.markdown('<div style="font-size:0.72rem;color:#FAF6EE44;margin-top:4px;">Nhập ít nhất 1 thông tin để tra cứu</div>', unsafe_allow_html=True)
+
+            submitted = st.form_submit_button(
+                "🔍  Tra cứu ngay →",
+                use_container_width=True,
+            )
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # ── Xử lý tra cứu ────────────────────────────────
+        if submitted:
+            if not any([sdt_input, ma_hd_input, ten_input]):
+                st.error("⚠️ Vui lòng nhập ít nhất một thông tin để tra cứu!")
+            else:
+                df = st.session_state.df_hopdong
+                mask = pd.Series([False] * len(df))
+
+                if sdt_input.strip():
+                    mask = mask | df["SĐT"].str.contains(sdt_input.strip(), case=False, na=False)
+                if ma_hd_input.strip():
+                    mask = mask | df["Mã HĐ"].str.contains(ma_hd_input.strip().upper(), case=False, na=False)
+                if ten_input.strip():
+                    mask = mask | df["Khách hàng"].str.contains(ten_input.strip(), case=False, na=False)
+
+                results = df[mask]
+                st.session_state.tracuu_result = results
+
+        # ── Hiển thị kết quả ─────────────────────────────
+        if st.session_state.tracuu_result is not None:
+            results = st.session_state.tracuu_result
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            if len(results) == 0:
+                st.markdown("""
+                <div style="background:#e74c3c15;border:1px solid #e74c3c44;border-radius:12px;
+                            padding:20px;text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:8px;">🔍</div>
+                    <div style="color:#e74c3c;font-weight:700;">Không tìm thấy hợp đồng</div>
+                    <div style="color:#FAF6EE66;font-size:0.8rem;margin-top:6px;">
+                        Vui lòng kiểm tra lại thông tin hoặc liên hệ studio:<br>
+                        <b style="color:#C9A84C;">0963 758 883 — 0965 758 883</b>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div style="color:#27ae60;font-weight:700;margin-bottom:12px;">✅ Tìm thấy {len(results)} hợp đồng</div>', unsafe_allow_html=True)
+
+                for _, r in results.iterrows():
+                    tt_color = {
+                        "Đang thực hiện": "#e67e22",
+                        "Hoàn thành":     "#27ae60",
+                        "Đặt lịch":       "#3498db",
+                        "Hủy":            "#e74c3c",
+                    }.get(r["Trạng thái"], "#888")
+
+                    con_lai  = int(r["Còn lại"])
+                    da_tt    = int(r["Đã TT"])
+                    tong     = int(r["Tổng tiền"])
+                    pct      = int(da_tt / tong * 100) if tong > 0 else 0
+                    cl_color = "#e74c3c" if con_lai > 0 else "#27ae60"
+                    cl_icon  = "⚠️" if con_lai > 0 else "✅"
+
+                    # Gói info từ GOI_CHUP_MAP
+                    goi_data = GOI_CHUP_MAP.get(r["Gói chụp"], {})
+                    dm_goi   = goi_data.get("danh_muc", "")
+
+                    st.markdown(f"""
+                    <div style="background:#1C1A10;border:1px solid {tt_color}44;
+                                border-left: 4px solid {tt_color};
+                                border-radius:14px;padding:20px;margin-bottom:14px;">
+
+                        <!-- Header -->
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                            <div>
+                                <span style="color:#C9A84C;font-weight:800;font-size:0.85rem;">{r["Mã HĐ"]}</span>
+                                <span style="background:{tt_color}22;color:{tt_color};font-size:0.68rem;
+                                             font-weight:700;padding:2px 10px;border-radius:10px;
+                                             border:1px solid {tt_color}44;margin-left:8px;">{r["Trạng thái"]}</span>
+                            </div>
+                            <div style="font-size:0.72rem;color:#FAF6EE44;">📅 {r["Ngày chụp"]}</div>
+                        </div>
+
+                        <!-- Tên khách -->
+                        <div style="font-size:1.1rem;font-weight:800;color:#FAF6EE;margin-bottom:4px;">👰 {r["Khách hàng"]}</div>
+                        <div style="font-size:0.78rem;color:#FAF6EE66;margin-bottom:14px;">
+                            📞 {r["SĐT"]} &nbsp;|&nbsp; 🎁 {r["Gói chụp"]}
+                            {"&nbsp;|&nbsp; 📂 " + dm_goi if dm_goi else ""}
+                        </div>
+
+                        <!-- Lịch hẹn -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;
+                                    background:#2A2618;border-radius:10px;padding:12px;margin-bottom:14px;">
+                            <div>
+                                <div style="font-size:0.65rem;color:#FAF6EE44;margin-bottom:2px;">💍 Ngày ăn hỏi</div>
+                                <div style="color:#FAF6EE;font-weight:600;font-size:0.82rem;">{r["Ngày ăn hỏi"]}</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.65rem;color:#FAF6EE44;margin-bottom:2px;">💒 Ngày cưới</div>
+                                <div style="color:#FAF6EE;font-weight:600;font-size:0.82rem;">{r["Ngày cưới"]}</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.65rem;color:#FAF6EE44;margin-bottom:2px;">📷 Ngày chụp</div>
+                                <div style="color:#FAF6EE;font-weight:600;font-size:0.82rem;">{r["Ngày chụp"]}</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.65rem;color:#FAF6EE44;margin-bottom:2px;">🖼️ Ngày trả ảnh</div>
+                                <div style="color:#E8D08A;font-weight:700;font-size:0.82rem;">{r["Ngày trả ảnh"]}</div>
+                            </div>
+                        </div>
+
+                        <!-- Ekip -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+                            <div style="background:#2A2618;border-radius:8px;padding:8px;text-align:center;">
+                                <div style="font-size:0.65rem;color:#FAF6EE44;">📷 Thợ chụp</div>
+                                <div style="font-size:0.75rem;color:{"#FAF6EE" if r["Thợ chụp"] else "#e74c3c"};font-weight:600;margin-top:2px;">
+                                    {r["Thợ chụp"] if r["Thợ chụp"] else "Chưa giao"}
+                                </div>
+                            </div>
+                            <div style="background:#2A2618;border-radius:8px;padding:8px;text-align:center;">
+                                <div style="font-size:0.65rem;color:#FAF6EE44;">💄 Makeup</div>
+                                <div style="font-size:0.75rem;color:{"#FAF6EE" if r["Thợ makeup"] else "#e74c3c"};font-weight:600;margin-top:2px;">
+                                    {r["Thợ makeup"] if r["Thợ makeup"] else "Chưa giao"}
+                                </div>
+                            </div>
+                            <div style="background:#2A2618;border-radius:8px;padding:8px;text-align:center;">
+                                <div style="font-size:0.65rem;color:#FAF6EE44;">🛎️ Lễ tân</div>
+                                <div style="font-size:0.75rem;color:{"#FAF6EE" if r["Lễ tân"] else "#e74c3c"};font-weight:600;margin-top:2px;">
+                                    {r["Lễ tân"] if r["Lễ tân"] else "Chưa giao"}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thanh toán -->
+                        <div style="background:#2A2618;border-radius:10px;padding:12px;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:6px;">
+                                <span style="color:#FAF6EE88;">Tổng hợp đồng</span>
+                                <span style="color:#E8D08A;font-weight:700;">{tong:,}đ</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:8px;">
+                                <span style="color:#FAF6EE88;">Đã thanh toán</span>
+                                <span style="color:#27ae60;font-weight:700;">+{da_tt:,}đ</span>
+                            </div>
+                            <div style="height:6px;background:#C9A84C22;border-radius:3px;margin-bottom:6px;">
+                                <div style="height:6px;width:{pct}%;background:linear-gradient(90deg,#C9A84C,#27ae60);border-radius:3px;"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+                                <span style="color:#FAF6EE;font-weight:700;">{cl_icon} Còn lại</span>
+                                <span style="color:{cl_color};font-weight:800;font-size:0.95rem;">{con_lai:,}đ</span>
+                            </div>
+                        </div>
+
+                        {"" if not r.get("Ghi chú") else f'<div style="margin-top:10px;font-size:0.72rem;color:#FAF6EE55;font-style:italic;">📝 {r["Ghi chú"]}</div>'}
+                    </div>
+                    """.replace(",","."), unsafe_allow_html=True)
+
+                # Liên hệ
+                st.markdown("""
+                <div style="text-align:center;margin-top:16px;padding:14px;
+                            background:#2A2618;border-radius:10px;border:1px solid #C9A84C22;">
+                    <div style="font-size:0.78rem;color:#FAF6EE66;margin-bottom:6px;">
+                        Cần hỗ trợ thêm? Liên hệ ngay với chúng tôi
+                    </div>
+                    <div style="font-size:1rem;font-weight:800;color:#C9A84C;">
+                        📞 0963 758 883 — 0965 758 883
+                    </div>
+                    <div style="font-size:0.72rem;color:#FAF6EE44;margin-top:4px;">
+                        Phố Cát – Vân Du – Thanh Hoá &nbsp;|&nbsp; 158 Khu 2 – Kim Tân – Thanh Hoá
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+
+# ============================================================
 # MAIN ROUTER
 # ============================================================
 if not st.session_state.logged_in:
@@ -3204,6 +3474,7 @@ else:
         "💵 Tính Lương":            page_luong,
         "📊 Thuế & Báo cáo":        page_thue,
         "💎 Bảng Giá":               page_bang_gia,
+        "🔎 Tra Cứu HĐ":             page_tracuu,
         "⚙️ Quản lý nhân sự":       page_personnel,
     }
     fn = page_map.get(selected)
