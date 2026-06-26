@@ -216,8 +216,8 @@ ROLE_MENUS = {
                     "🎨 Hậu kỳ", "📅 Lịch làm việc",
                     "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ",
                     "💰 Thu Chi", "💵 Tính Lương", "📊 Thuế & Báo cáo",
-                    "⚙️ Quản lý nhân sự"],
-    "Lễ tân":      ["🏠 Tổng quan", "📋 Hợp đồng", "🗓️ Lịch hẹn", "📦 Giao nhận đồ"],
+                    "💎 Bảng Giá", "⚙️ Quản lý nhân sự"],
+    "Lễ tân":      ["🏠 Tổng quan", "📋 Hợp đồng", "🗓️ Lịch hẹn", "📦 Giao nhận đồ", "💎 Bảng Giá"],
     "Quản lý kho": ["🏠 Tổng quan", "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ"],
     "Makeup":      ["🏠 Tổng quan", "💄 Makeup", "🗓️ Lịch hẹn"],
     "Nhiếp ảnh":   ["🏠 Tổng quan", "📅 Lịch làm việc", "🗓️ Lịch hẹn"],
@@ -620,6 +620,7 @@ def page_dashboard():
         ("💰 Thu Chi",      "💰", "Thu Chi",            f"Thu: {tong_thu_tc/1_000_000:.1f}M · Chi: {tong_chi_tc/1_000_000:.1f}M","#27ae60",f"{(tong_thu_tc-tong_chi_tc)/1_000_000:.1f}M","Lợi nhuận",2),
         ("💵 Tính Lương",   "💵", "Tính Lương",         f"{len(st.session_state.df_nhansu)} nhân viên",          "#E8D08A", str(len(st.session_state.df_nhansu)),"NV",          2),
         ("📊 Thuế & Báo cáo","📊","Thuế & Báo cáo",    "Kê khai thuế · Sổ kế toán",                            "#e74c3c", "7%","GTGT",                                         2),
+        ("💎 Bảng Giá",         "💎","Bảng Giá",          "7 loại dịch vụ · Giá chuẩn TUANHOA",                  "#C9A84C", "7","Danh mục",                                     2),
         ("⚙️ Quản lý nhân sự","⚙️","Nhân sự",          f"Phân quyền & tài khoản",                              "#888",    str(len(USERS)),"Tài khoản",                          2),
     ]
 
@@ -1823,6 +1824,539 @@ def page_personnel():
     </div>
     """, unsafe_allow_html=True)
 
+
+# ============================================================
+# BẢNG GIÁ TUANHOA WEDDING — Dữ liệu chuẩn từ catalogue
+# ============================================================
+BANG_GIA = {
+
+    "Pre-Wedding": {
+        "icon": "💍",
+        "mo_ta": "Chụp ảnh Pre-Wedding tại Studio & Ngoại cảnh",
+        "goi": [
+            {
+                "ten": "Combo 1 — 1 máy chụp",
+                "gia": 2500000, "gia_goc": None,
+                "ekip": "1 máy chụp",
+                "thoi_gian": "1 buổi Lễ Ăn Hỏi + 1 buổi Lễ Cưới",
+                "dich_vu": [
+                    "Tới địa điểm chụp 30p-1h",
+                    "Chụp thoải mái không giới hạn file",
+                    "Hỗ trợ cô dâu chú rể tạo dáng",
+                    "Chụp check in, khoảnh khắc",
+                ],
+                "san_pham": [
+                    "Chỉnh sửa toàn bộ file, 30 file chọn lọc in",
+                    "Album + Trả toàn bộ file gốc",
+                ],
+                "ghi_chu": "Áp dụng bán kính 15km, trên 20km phụ phí 20k/1km",
+            },
+            {
+                "ten": "Combo 2 — 2 máy chụp",
+                "gia": 3500000, "gia_goc": None,
+                "ekip": "2 máy chụp",
+                "thoi_gian": "1 máy Buổi Lễ Ăn Hỏi + 2 máy Buổi Lễ Cưới",
+                "dich_vu": [
+                    "1 máy chụp nhà trai, 1 máy chụp nhà gái",
+                    "Tới địa điểm chụp 30p-1h",
+                    "Chụp thoải mái không giới hạn file",
+                    "Hỗ trợ cô dâu chú rể tạo dáng",
+                ],
+                "san_pham": [
+                    "30 file chọn lọc in + album",
+                    "Trả toàn bộ file gốc",
+                ],
+                "ghi_chu": "Áp dụng bán kính 15km, trên 20km phụ phí 20k/1km",
+            },
+            {
+                "ten": "Combo 3 — 2 máy chụp (2 buổi ĂH)",
+                "gia": 5500000, "gia_goc": None,
+                "ekip": "2 máy chụp",
+                "thoi_gian": "2 máy Buổi Lễ Ăn Hỏi + 2 máy Buổi Lễ Cưới",
+                "dich_vu": [
+                    "1 máy chụp nhà trai, 1 máy chụp nhà gái (cả ĂH và Cưới)",
+                    "Chụp thoải mái không giới hạn file",
+                ],
+                "san_pham": ["30 file chọn lọc in + album + Trả toàn bộ file gốc"],
+                "ghi_chu": "Áp dụng bán kính 15km, trên 20km phụ phí 20k/1km",
+            },
+            {
+                "ten": "Combo 4 — 1 máy chụp + 1 máy quay",
+                "gia": 8500000, "gia_goc": None,
+                "ekip": "1 máy chụp + 1 máy quay",
+                "thoi_gian": "2 máy Buổi Lễ Ăn Hỏi + 2 máy Buổi Lễ Cưới",
+                "dich_vu": [
+                    "Quay Chụp thoải mái không giới hạn",
+                    "Hỗ trợ cô dâu chú rể tạo dáng",
+                    "Chụp check in — Quay highlight khoảnh khắc",
+                ],
+                "san_pham": [
+                    "1 Video highlight khoảnh khắc",
+                    "30 file chọn lọc in + album + Trả toàn bộ file gốc",
+                ],
+                "ghi_chu": "Áp dụng bán kính 15km, trên 20km phụ phí 20k/1km",
+            },
+        ],
+    },
+
+    "Chụp Studio": {
+        "icon": "📸",
+        "mo_ta": "Gói chụp ảnh cưới tại Studio TUANHOA",
+        "goi": [
+            {
+                "ten": "Gói Studio 3.000.000đ",
+                "gia": 3000000, "gia_goc": 3500000,
+                "ekip": "Ekip Studio",
+                "dich_vu": [
+                    "Cô dâu mặc 1 váy cưới (hàng trung)",
+                    "Chú rể mặc 1 vest cưới (hàng trung)",
+                    "Makeup + Hair cô dâu theo trang phục",
+                    "Phụ váy Hoa lụa cầm tay",
+                    "Chụp 2 concept nền trơn",
+                ],
+                "san_pham": [
+                    "02 ảnh meka size 50/75",
+                    "02 ảnh bàn size 20/30",
+                    "10 file chỉnh sửa",
+                    "Copy toàn bộ ảnh gốc",
+                ],
+                "ghi_chu": "Ưu đãi dành cho khách hàng đặt lịch online",
+            },
+            {
+                "ten": "Gói Studio 4.500.000đ",
+                "gia": 4500000, "gia_goc": 5500000,
+                "ekip": "Ekip Studio",
+                "dich_vu": [
+                    "Cô dâu mặc 2 váy cưới (Cao cấp)",
+                    "Chú rể mặc 2 Vest cưới (cao cấp)",
+                    "Makeup + Hair cô dâu theo trang phục",
+                    "Phụ váy Hoa lụa cầm tay",
+                    "Khách hàng lựa chọn váy, vest theo yêu cầu (hãng luxury)",
+                    "Chụp 2 concept tự lựa chọn",
+                ],
+                "san_pham": [
+                    "02 ảnh meka size 60/90",
+                    "02 ảnh bàn size 20/30",
+                    "10 ảnh File PHOTOSHOP",
+                    "Copy toàn bộ ảnh gốc",
+                ],
+                "ghi_chu": "Ưu đãi dành cho khách hàng đặt lịch online",
+            },
+            {
+                "ten": "Gói Studio 5.900.000đ",
+                "gia": 5900000, "gia_goc": 6500000,
+                "ekip": "Ekip Studio",
+                "dich_vu": [
+                    "Cô dâu mặc 2 váy cưới (Cao cấp)",
+                    "Chú rể mặc 2 Vest cưới (cao cấp)",
+                    "Makeup + Hair cô dâu theo trang phục",
+                    "Phụ váy Hoa lụa cầm tay",
+                    "Khách hàng lựa chọn váy, vest — hãng luxury",
+                    "Chụp 2 concept tự lựa chọn",
+                ],
+                "san_pham": [
+                    "02 ảnh meka size 60/90",
+                    "02 ảnh bàn size 20/30",
+                    "01 bộ khung hợp kim 09 ảnh",
+                    "10 ảnh File PHOTOSHOP",
+                    "Copy toàn bộ ảnh gốc",
+                ],
+                "ghi_chu": "",
+            },
+            {
+                "ten": "Gói Studio 6.900.000đ",
+                "gia": 6900000, "gia_goc": 7500000,
+                "ekip": "Ekip Studio",
+                "dich_vu": [
+                    "Cô dâu mặc 2 váy cưới (Cao cấp)",
+                    "Chú rể mặc 2 Vest cưới (cao cấp)",
+                    "Makeup + Hair cô dâu theo trang phục",
+                    "Phụ váy Hoa lụa cầm tay",
+                    "Khách hàng lựa chọn váy, vest — hãng luxury",
+                ],
+                "san_pham": [
+                    "02 ảnh meka size 60/120",
+                    "02 ảnh bàn size 20/30",
+                    "01 bộ khung hợp kim 09 ảnh",
+                    "10 ảnh File PHOTOSHOP",
+                    "Copy toàn bộ ảnh gốc",
+                ],
+                "ghi_chu": "",
+            },
+        ],
+    },
+
+    "Gói Chụp Ảnh Trọn Gói": {
+        "icon": "💒",
+        "mo_ta": "Gói chụp ảnh tại Studio kèm ưu đãi Ngày Cưới & Ăn Hỏi",
+        "goi": [
+            {
+                "ten": "Gói 5.900.000đ (giảm từ 6.900k)",
+                "gia": 5900000, "gia_goc": 6900000,
+                "dich_vu": [
+                    "02 váy chụp (kèm phụ kiện) — 02 vest nam (kèm phụ kiện)",
+                    "Chụp 2 concept nền trơn",
+                    "Ekip phụ buổi chụp: thợ makeup + tóc, thợ chụp hướng dẫn tạo dáng",
+                    "Hoa lụa cao cấp + giày dép + phụ kiện",
+                    "Thời gian chụp 1/2 ngày tại studio",
+                    "Miễn phí vé chụp tại phim trường TUẤN HOA",
+                ],
+                "san_pham": [
+                    "02 ảnh phóng 50x75 chất liệu meka",
+                    "02 ảnh để bàn 20-30",
+                    "05 file chỉnh sửa đăng fb",
+                    "Copy toàn bộ ảnh gốc",
+                ],
+                "uu_dai_ngay_cuoi": [
+                    "Mượn 1 váy cưới + 1 vets chú rể ngày cưới",
+                    "1 áo dài cô dâu + 1 áo dài chú rể",
+                    "5 áo dài bê tráp nữ + 5 áo dài nam",
+                    "1 lần Makeup cô dâu tại nhà",
+                    "1 lần makeup cô dâu tại cửa hàng ngày hỏi",
+                    "Phụ kiện cô dâu (đặt online)",
+                ],
+                "ghi_chu": "Áp dụng bán kính 15km, trên 15km phụ phí 15k/1km",
+            },
+            {
+                "ten": "Gói 8.400.000đ (giảm từ 9.400k)",
+                "gia": 8400000, "gia_goc": 9400000,
+                "dich_vu": [
+                    "1 váy VIP + 1 váy simple (kèm phụ kiện)",
+                    "2 vest nam (kèm phụ kiện)",
+                    "Chụp 2 concept tự chọn",
+                    "Ekip phụ: thợ makeup + tóc, thợ chụp hướng dẫn",
+                    "Hoa lụa cao cấp + giày dép + phụ kiện",
+                    "Thời gian chụp 1/2 ngày tại studio",
+                    "Miễn phí vé chụp tại phim trường TUẤN HOA",
+                ],
+                "san_pham": [
+                    "02 ảnh phóng 60x90 chất liệu meka",
+                    "05 ảnh để bàn 20-30 chất liệu meka",
+                    "Copy toàn bộ ảnh gốc",
+                ],
+                "uu_dai_ngay_cuoi": [
+                    "Mượn 1 váy cưới simple + 1 áo dài cô dâu simple",
+                    "1 vets chú rể ngày cưới + 1 áo dài chú rể",
+                    "7 áo dài bê tráp nữ + 7 áo dài nam",
+                    "1 lần Makeup cô dâu tại nhà",
+                    "1 lần makeup tại cửa hàng ngày hỏi",
+                    "Phụ kiện cô dâu + tặng lend mắt + Take care",
+                ],
+                "ghi_chu": "Áp dụng bán kính 15km, trên 15km phụ phí 15k/1km",
+            },
+            {
+                "ten": "Gói 10.800.000đ (giảm từ 11.800k)",
+                "gia": 10800000, "gia_goc": 11800000,
+                "dich_vu": [
+                    "1 váy VIP + 1 váy simple (kèm phụ kiện)",
+                    "2 vest nam (kèm phụ kiện)",
+                    "Chụp 2 concept tự chọn — 1 ekip phụ buổi chụp",
+                    "Thợ makeup + tóc — Thợ chụp hướng dẫn tạo dáng",
+                    "Hoa lụa cao cấp — Miễn phí vé phim trường TUẤN HOA",
+                ],
+                "san_pham": [
+                    "02 ảnh phóng 60x90 chất liệu meka",
+                    "05 ảnh để bàn 20-30 chất liệu meka",
+                    "Copy toàn bộ ảnh gốc",
+                ],
+                "uu_dai_ngay_cuoi": [
+                    "Mượn 01 váy cưới Luxury tùy chọn",
+                    "1 áo dài cô dâu tùy chọn + 1 vets chú rể",
+                    "1 áo dài chú rể + 7 áo dài bê tráp nữ + 7 áo dài nam",
+                    "1 lần Makeup cô dâu tại nhà + 1 lần tại cửa hàng",
+                    "Phụ kiện cô dâu + lend mắt + Take care",
+                ],
+                "ghi_chu": "Áp dụng bán kính 15km, trên 15km phụ phí 15k/1km",
+            },
+            {
+                "ten": "Gói 13.800.000đ (giảm từ 14.800k)",
+                "gia": 13800000, "gia_goc": 14800000,
+                "dich_vu": [
+                    "03 váy cưới (kèm phụ kiện) — 03 vests chú rể chụp hình",
+                    "Chụp 2 concept tự chọn",
+                    "1 ekip phụ buổi chụp — Thợ chụp theo yêu cầu",
+                    "Thợ makeup + tóc — Thợ hướng dẫn sắp dáng",
+                    "Hoa lụa cao cấp — Miễn phí vé phim trường",
+                ],
+                "san_pham": [
+                    "2 ảnh phóng 60/90 chất liệu pha lê HD khung hợp kim VIP",
+                    "4 ảnh để bàn 20-30 chất liệu meka",
+                    "01 bộ khung 9 ảnh khung hợp kim",
+                    "Copy toàn bộ ảnh gốc",
+                ],
+                "uu_dai_ngay_cuoi": [
+                    "1 váy cưới thiết kế theo số đo (hãng luxury cao cấp)",
+                    "1 vets chú rể ngày cưới mới nguyên team",
+                    "1 cặp áo dài cô dâu + chú rể (hãng luxury cao cấp)",
+                    "Áo dài đỡ lễ nữ + nam (tùy số lượng — cao cấp)",
+                    "2 lần makeup cô dâu tại nhà",
+                    "Phụ kiện cô dâu + lend mắt + Take care",
+                ],
+                "ghi_chu": "Áp dụng bán kính 15km, trên 15km phụ phí 15k/1km",
+            },
+            {
+                "ten": "Gói 15.800.000đ (giảm từ 16.800k)",
+                "gia": 15800000, "gia_goc": 16800000,
+                "dich_vu": [
+                    "03 váy cưới (kèm phụ kiện) — 03 vests chú rể",
+                    "Chụp 2 concept tự chọn",
+                    "1 ekip phụ — Thợ chụp theo yêu cầu",
+                    "Thợ makeup + tóc — Thợ hướng dẫn sắp dáng",
+                    "Hoa lụa cao cấp — Khách tự thanh toán vé ngoài studio",
+                ],
+                "san_pham": [
+                    "3 ảnh phóng 60/90 chất liệu pha lê HD khung hợp kim VIP",
+                    "4 ảnh để bàn 20-30 chất liệu meka",
+                    "01 bộ khung 9 ảnh khung hợp kim",
+                    "Copy toàn bộ ảnh gốc",
+                ],
+                "uu_dai_ngay_cuoi": [
+                    "1 váy cưới thiết kế theo số đo (hãng luxury cao cấp)",
+                    "1 vets chú rể thiết kế theo số đo",
+                    "1 cặp áo dài cô dâu + chú rể thiết kế (hãng luxury cao cấp)",
+                    "Áo dài đỡ lễ nữ + nam (tùy số lượng — cao cấp)",
+                    "2 lần makeup cô dâu tại nhà",
+                    "Phụ kiện cô dâu + lend mắt + Take care",
+                ],
+                "ghi_chu": "Áp dụng bán kính 15km, trên 15km phụ phí 15k/1km",
+            },
+        ],
+    },
+
+    "Ngày Cưới + Nạp Tài": {
+        "icon": "💒",
+        "mo_ta": "Dịch vụ trọn gói Ngày Cưới & Nạp Tài",
+        "goi": [
+            {
+                "ten": "Gói 3.999k (từ 4.999k)",
+                "gia": 3999000, "gia_goc": 4999000,
+                "dich_vu": [
+                    "1 váy cưới cô dâu tùy chọn (theo gói)",
+                    "1 cặp áo dài cưới cô dâu + chú rể",
+                    "1 bộ veston chú rể",
+                    "1 lần makeup cô dâu tại nhà cô dâu",
+                    "Quà tặng: phụ kiện won + mấn + cài tóc kèm theo",
+                ],
+                "san_pham": [],
+                "ghi_chu": "Áp dụng bán kính dưới 15km, trên 15km phụ phí 15k/1km",
+            },
+            {
+                "ten": "Gói 5.999k (từ 6.999k)",
+                "gia": 5999000, "gia_goc": 6999000,
+                "dich_vu": [
+                    "1 váy cưới cô dâu tùy chọn (theo gói)",
+                    "1 cặp áo dài cưới cô dâu + chú rể",
+                    "1 bộ veston chú rể",
+                    "1 combo 10 áo dài bê (nam + nữ)",
+                    "1 lần makeup tại nhà cô dâu + 1 lần tại tiệm",
+                    "Quà tặng: phụ kiện won + mấn + test care + cài tóc",
+                ],
+                "san_pham": [],
+                "ghi_chu": "Áp dụng bán kính dưới 15km, trên 15km phụ phí 15k/1km",
+            },
+            {
+                "ten": "Gói 7.999k (từ 8.999k)",
+                "gia": 7999000, "gia_goc": 8999000,
+                "dich_vu": [
+                    "1 váy cưới cô dâu tùy chọn (theo gói)",
+                    "1 cặp áo dài cưới cô dâu + chú rể (cao cấp)",
+                    "1 bộ veston chú rể (cao cấp)",
+                    "1 combo 14 áo dài bê + nơ (nam + nữ)",
+                    "2 lần makeup tại nhà cô dâu",
+                    "Quà tặng: phụ kiện voan + mấn + test care + cài tóc",
+                ],
+                "san_pham": [],
+                "ghi_chu": "Áp dụng bán kính dưới 15km, trên 15km phụ phí 15k/1km",
+            },
+            {
+                "ten": "Gói 9.400k (từ 10.400k)",
+                "gia": 9400000, "gia_goc": 10400000,
+                "dich_vu": [
+                    "1 váy cưới cô dâu tùy chọn (theo gói)",
+                    "1 cặp áo dài cưới cô dâu + chú rể",
+                    "1 bộ veston chú rể (cao cấp)",
+                    "1 combo 14 bộ áo dài nam + nữ",
+                    "2 lần makeup cô dâu tại nhà",
+                    "Quà tặng: phụ kiện voan + mấn + test care + cài tóc",
+                ],
+                "san_pham": [],
+                "ghi_chu": "Áp dụng bán kính dưới 15km, trên 15km phụ phí 15k/1km",
+            },
+            {
+                "ten": "Gói 12.400k (từ 13.400k)",
+                "gia": 12400000, "gia_goc": 13400000,
+                "dich_vu": [
+                    "1 váy cưới thiết kế (váy hãng luxury — mới nguyên team)",
+                    "1 cặp áo dài cưới cô dâu + 1 áo dài chú rể",
+                    "1 bộ veston chú rể cao cấp",
+                    "1 váy đi bàn cô dâu",
+                    "1 combo 14 áo dài bê + nơ (nam nữ)",
+                    "2 lần makeup cô dâu tại nhà",
+                    "1 bộ áo dài mẹ",
+                    "Quà tặng: 1 ảnh gia đình 60&90 meka",
+                    "Phụ kiện voan + mấn + test care + cài tóc",
+                ],
+                "san_pham": [],
+                "ghi_chu": "Áp dụng bán kính dưới 15km, trên 15km phụ phí 15k/1km",
+            },
+        ],
+    },
+
+    "Lễ Chấp Nạp Tài": {
+        "icon": "🎎",
+        "mo_ta": "Dịch vụ tổ chức Lễ Chấp Nạp Tài",
+        "goi": [
+            {
+                "ten": "Combo 5 Lễ — 5.500.000đ",
+                "gia": 5500000, "gia_goc": None,
+                "dich_vu": [
+                    "Cháp cau trầu",
+                    "Bánh kẹo diệu thuốc",
+                    "Bánh phu thê",
+                    "Cháp bia hoặc nước ngọt",
+                    "Sôi thủ lợn",
+                ],
+                "san_pham": [],
+                "ghi_chu": "KM: 30 miếng chầu cánh phượng, 3 trai riệu vodka, xe chở lễ, 10 bao lì xì, 01 lì xì to",
+            },
+            {
+                "ten": "Combo 5 Lễ — 6.800.000đ",
+                "gia": 6800000, "gia_goc": None,
+                "dich_vu": [
+                    "Cháp cau trầu (Con phượng)",
+                    "Cháp hoa quả (Con Rồng)",
+                    "Bánh kẹo diệu thuốc",
+                    "Bánh phu thê",
+                    "Sôi thủ lợn",
+                ],
+                "san_pham": [],
+                "ghi_chu": "KM: 30 miếng chầu cánh phượng, 3 trai riệu vodka, xe chở lễ, 10 bao lì xì, 01 lì xì to",
+            },
+            {
+                "ten": "Combo 7 Lễ — 11.800.000đ",
+                "gia": 11800000, "gia_goc": None,
+                "dich_vu": [
+                    "Cháp cau trầu (Con phượng)",
+                    "Cháp hoa quả (Con rồng)",
+                    "Bánh kẹo diệu thuốc",
+                    "Cháp bia hoặc nước ngọt",
+                    "Cháp đồ lại quả",
+                    "Bánh phu thê, xu xê",
+                    "Lợn quay",
+                ],
+                "san_pham": [],
+                "ghi_chu": "KM: 30 miếng chầu cánh phượng, 3 trai riệu vodka, xe chở lễ, 10 bao lì xì, 01 lì xì to",
+            },
+            {
+                "ten": "Combo 7 Lễ — 13.000.000đ",
+                "gia": 13000000, "gia_goc": None,
+                "dich_vu": [
+                    "Cháp cau trầu (Con phượng)",
+                    "Cháp hoa quả (Con rồng)",
+                    "Bánh kẹo diệu thuốc",
+                    "Cháp bia hoặc nước ngọt",
+                    "Cháp đồ lại quả",
+                    "Bánh phu thê",
+                    "Bánh xu xê + Bánh Danisa",
+                    "Lợn quay",
+                ],
+                "san_pham": [],
+                "ghi_chu": "KM: 30 miếng chầu cánh phượng, 3 trai riệu vodka, xe chở lễ, 10 bao lì xì, 01 lì xì to",
+            },
+        ],
+    },
+
+    "Baby Care": {
+        "icon": "👶",
+        "mo_ta": "Chụp ảnh bé Baby Care — Áp dụng cho bé 5 tháng – 7 tuổi",
+        "goi": [
+            {
+                "ten": "Combo 1 — 399.000đ",
+                "gia": 399000, "gia_goc": None,
+                "dich_vu": [
+                    "Gói BABY cơ bản",
+                    "Tặng bé 1 concept & 1 trang phục",
+                    "Tặng 5 file chỉnh sửa photoshop",
+                ],
+                "san_pham": [],
+                "ghi_chu": "Hỗ trợ trang phục và phụ kiện cho bé dưới 5 tuổi. Trả toàn bộ file nén (resize 1500x1500px)",
+            },
+            {
+                "ten": "Combo 2 — 599.000đ",
+                "gia": 599000, "gia_goc": None,
+                "dich_vu": [
+                    "Gói BABY nâng cao",
+                    "Tặng bé 1 concept & 1 trang phục",
+                    "Tặng 1 ảnh phóng 40x60 chất liệu mika",
+                    "Tặng 5 file chỉnh sửa photoshop",
+                ],
+                "san_pham": [],
+                "ghi_chu": "Phụ thu 150k cho bé chụp cùng trong gói. Phụ thu 200k cho 1 bối cảnh chụp thêm",
+            },
+            {
+                "ten": "Combo 3 VIP — 999.000đ",
+                "gia": 999000, "gia_goc": None,
+                "dich_vu": [
+                    "Gói BABY VIP",
+                    "Tặng bé 2 concept & 2 trang phục",
+                    "Tặng 1 ảnh phóng 50x75 chất liệu mika",
+                    "Tặng 05 file chỉnh sửa photoshop",
+                ],
+                "san_pham": [],
+                "ghi_chu": "Phát sinh ảnh chỉnh sửa quá số lượng trong gói: 30k/ảnh áp dụng cho bé",
+            },
+        ],
+    },
+
+    "Makeup Artist": {
+        "icon": "💄",
+        "mo_ta": "Bảng giá dịch vụ Makeup Artist tham khảo",
+        "gia_dich_vu": [
+            {"dich_vu": "Make up Tiệc",                   "gia_thuong": 250000,  "gia_vip": 300000},
+            {"dich_vu": "Make up Kỷ Yếu",                 "gia_thuong": 250000,  "gia_vip": 500000},
+            {"dich_vu": "Make up Sự Kiện",                "gia_thuong": 300000,  "gia_vip": 450000},
+            {"dich_vu": "Make up Mẹ (Phụ kiện + Tóc)",   "gia_thuong": 300000,  "gia_vip": 400000},
+            {"dich_vu": "Make up Chú Rể",                 "gia_thuong": 250000,  "gia_vip": 400000},
+            {"dich_vu": "Make up bê lễ nạp tài",          "gia_thuong": 150000,  "gia_vip": 200000},
+            {"dich_vu": "Take care (Chăm sóc)",           "gia_thuong": 400000,  "gia_vip": 600000},
+            {"dich_vu": "Test Make up",                   "gia_thuong": 600000,  "gia_vip": 800000},
+            {"dich_vu": "Make up Chủ Tiệc",               "gia_thuong": 500000,  "gia_vip": 800000},
+            {"dich_vu": "Make up Cô Dâu (Áo dài)",       "gia_thuong": 1000000, "gia_vip": 1500000},
+            {"dich_vu": "Make up Cô Dâu (Áo cưới)",      "gia_thuong": 1500000, "gia_vip": 2000000},
+            {"dich_vu": "Make up Cô Dâu (Cưới + Nạp tài cùng ngày)", "gia_thuong": 2500000, "gia_vip": 2500000},
+        ],
+        "dich_vu_tang": "Phụ kiện cô dâu + tặng lend mắt + tặng Take care cô dâu",
+        "dat_coc": "100k đối với khách tiệc, 500k đối với cô dâu",
+        "goi": [],
+    },
+
+    "Cỡ Ảnh Gia Đình": {
+        "icon": "🖼️",
+        "mo_ta": "Bảng giá cỡ ảnh gia đình 2026 — Tặng khung Hàn Quốc từ 70x110 trở lên",
+        "bang_gia_anh": [
+            {"size": "50×75",   "gia": 1500000},
+            {"size": "60×90",   "gia": 2500000},
+            {"size": "70×110",  "gia": 3500000},
+            {"size": "80×120",  "gia": 4800000},
+            {"size": "100×150", "gia": 6800000},
+            {"size": "120×180", "gia": 11500000},
+        ],
+        "ghi_chu": "Cỡ ảnh 70×110 đến 120×180 đã tặng kèm khung Hàn Quốc",
+        "goi": [],
+    },
+}
+
+# Map gói options in contracts to bang gia
+GOI_CHUP_MAP = {
+    "Gói Studio I":      {"gia": 5900000,  "danh_muc": "Chụp Studio"},
+    "Gói Studio II":     {"gia": 8400000,  "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
+    "Gói Studio III":    {"gia": 10800000, "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
+    "Gói Ảnh Phòng":     {"gia": 13800000, "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
+    "Gói Ảnh Phòng VIP": {"gia": 15800000, "danh_muc": "Gói Chụp Ảnh Trọn Gói"},
+    "Gói Ngoại Cảnh":    {"gia": 3500000,  "danh_muc": "Pre-Wedding"},
+}
+
+
 # ============================================================
 # TRANG: HỢP ĐỒNG
 # ============================================================
@@ -1914,8 +2448,7 @@ def page_hopdong():
     # ── Lập hợp đồng mới ──────────────────────────────────
     st.markdown("<br>", unsafe_allow_html=True)
     with st.expander("➕ Lập hợp đồng mới"):
-        goi_options = ["Gói Studio I","Gói Studio II","Gói Studio III",
-                       "Gói Ảnh Phòng","Gói Ảnh Phòng VIP","Gói Ngoại Cảnh"]
+        goi_options = list(GOI_CHUP_MAP.keys())
         with st.form("form_add_hd"):
             c1,c2 = st.columns(2)
             with c1:
@@ -2488,7 +3021,100 @@ else:
         "💰 Thu Chi":               page_thu_chi,
         "💵 Tính Lương":            page_luong,
         "📊 Thuế & Báo cáo":        page_thue,
+        "💎 Bảng Giá":               page_bang_gia,
         "⚙️ Quản lý nhân sự":       page_personnel,
     }
     fn = page_map.get(selected)
     if fn: fn()
+
+# ============================================================
+# TRANG: BẢNG GIÁ DỊCH VỤ
+# ============================================================
+def page_bang_gia():
+    st.markdown('<div class="section-header">💎 Bảng Giá Dịch Vụ — TUANHOA WEDDING</div>', unsafe_allow_html=True)
+
+    def fmt(n):
+        return f"{int(n):,}đ".replace(",",".")
+
+    # Tab chọn danh mục
+    danh_muc_list = list(BANG_GIA.keys())
+    tabs = st.tabs([f"{BANG_GIA[d]['icon']} {d}" for d in danh_muc_list])
+
+    for ti, danh_muc in enumerate(danh_muc_list):
+        cat = BANG_GIA[danh_muc]
+        with tabs[ti]:
+            st.markdown(f'<div style="color:#FAF6EE88;font-size:0.82rem;margin-bottom:16px;">{cat["mo_ta"]}</div>', unsafe_allow_html=True)
+
+            # Special: Makeup Artist — dạng bảng giá
+            if danh_muc == "Makeup Artist":
+                st.markdown("**💄 Bảng giá tham khảo**")
+                rows = []
+                for item in cat["gia_dich_vu"]:
+                    rows.append({
+                        "Dịch vụ": item["dich_vu"],
+                        "Giá Thường": fmt(item["gia_thuong"]),
+                        "Giá VIP": fmt(item["gia_vip"]),
+                    })
+                import pandas as pd
+                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+                st.markdown(f'''
+                <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:8px;padding:14px;margin-top:12px;font-size:0.82rem;">
+                    <div style="color:#C9A84C;font-weight:700;margin-bottom:6px;">🎁 Dịch vụ tặng kèm</div>
+                    <div style="color:#FAF6EE88;">{cat["dich_vu_tang"]}</div>
+                    <div style="color:#FAF6EE88;margin-top:6px;">💳 Đặt cọc: {cat["dat_coc"]}</div>
+                </div>
+                ''', unsafe_allow_html=True)
+                continue
+
+            # Special: Cỡ Ảnh — dạng grid giá
+            if danh_muc == "Cỡ Ảnh Gia Đình":
+                cols = st.columns(3)
+                for i, item in enumerate(cat["bang_gia_anh"]):
+                    with cols[i % 3]:
+                        is_bonus = item["size"] >= "70×110"
+                        bonus_html = '<div style="font-size:0.65rem;color:#27ae60;margin-top:2px;">🎁 Tặng kèm khung Hàn Quốc</div>' if is_bonus else ''
+                        st.markdown(f'''
+                        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;
+                                    padding:16px;text-align:center;margin-bottom:12px;">
+                            <div style="font-size:1rem;color:#FAF6EE;font-weight:700;">{item["size"]} cm</div>
+                            <div style="font-size:1.3rem;color:#C9A84C;font-weight:800;margin-top:4px;">{fmt(item["gia"])}</div>
+                            {bonus_html}
+                        </div>
+                        ''', unsafe_allow_html=True)
+                st.markdown(f'<div style="color:#FAF6EE66;font-size:0.78rem;text-align:center;margin-top:4px;">⭐ {cat["ghi_chu"]}</div>', unsafe_allow_html=True)
+                continue
+
+            # Standard: Gói dịch vụ
+            goi_list = cat.get("goi", [])
+            if not goi_list:
+                st.info("Đang cập nhật...")
+                continue
+
+            n_cols = min(len(goi_list), 3)
+            rows_g = [goi_list[i:i+n_cols] for i in range(0, len(goi_list), n_cols)]
+            for row_g in rows_g:
+                cols = st.columns(len(row_g))
+                for ci, goi in enumerate(row_g):
+                    with cols[ci]:
+                        gia_str  = fmt(goi["gia"])
+                        goc_html = f'<div style="color:#FAF6EE44;text-decoration:line-through;font-size:0.75rem;">{fmt(goi["gia_goc"])}</div>' if goi.get("gia_goc") else ''
+                        dv_html  = "".join([f'<li style="color:#FAF6EE88;font-size:0.75rem;margin:3px 0;">{d}</li>' for d in goi.get("dich_vu",[])])
+                        sp_html  = "".join([f'<li style="color:#27ae60;font-size:0.72rem;margin:2px 0;">{s}</li>' for s in goi.get("san_pham",[])])
+                        ud_html  = "".join([f'<li style="color:#3498db;font-size:0.72rem;margin:2px 0;">{u}</li>' for u in goi.get("uu_dai_ngay_cuoi",[])])
+
+                        st.markdown(f'''
+                        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:12px;
+                                    padding:16px;margin-bottom:12px;height:100%;">
+                            <div style="color:#C9A84C;font-weight:800;font-size:0.88rem;margin-bottom:8px;">{goi["ten"]}</div>
+                            {goc_html}
+                            <div style="font-size:1.5rem;color:#E8D08A;font-weight:800;margin-bottom:10px;">{gia_str}</div>
+                            {'<div style="color:#FAF6EE66;font-size:0.7rem;margin-bottom:2px;">📌 Dịch vụ bao gồm:</div>' if dv_html else ''}
+                            <ul style="margin:0 0 8px;padding-left:16px;">{dv_html}</ul>
+                            {'<div style="color:#27ae60;font-size:0.7rem;margin-bottom:2px;">🎁 Sản phẩm nhận được:</div>' if sp_html else ''}
+                            <ul style="margin:0 0 8px;padding-left:16px;">{sp_html}</ul>
+                            {'<div style="color:#3498db;font-size:0.7rem;margin-bottom:2px;">💒 Ưu đãi Ngày Cưới - Ăn Hỏi:</div>' if ud_html else ''}
+                            <ul style="margin:0 0 8px;padding-left:16px;">{ud_html}</ul>
+                            {'<div style="background:#C9A84C18;border-radius:6px;padding:6px 8px;font-size:0.68rem;color:#C9A84C66;margin-top:6px;">⚠️ ' + goi.get("ghi_chu","") + '</div>' if goi.get("ghi_chu") else ''}
+                        </div>
+                        ''', unsafe_allow_html=True)
+
