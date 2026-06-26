@@ -1746,11 +1746,20 @@ def page_hopdong():
     st.markdown('<div class="section-header">📋 Quản lý Hợp đồng</div>', unsafe_allow_html=True)
     df = st.session_state.df_hopdong
 
+    # Init selected contract state
+    if "selected_hd" not in st.session_state:
+        st.session_state.selected_hd = None
+
+    # ── Nếu đang xem chi tiết ─────────────────────────────
+    if st.session_state.selected_hd:
+        _show_hopdong_detail(st.session_state.selected_hd)
+        return
+
     # ── KPI ────────────────────────────────────────────────
-    tong_hd   = len(df)
-    dang_th   = len(df[df["Trạng thái"]=="Đang thực hiện"])
-    con_no    = df["Còn lại"].sum()
-    tong_dt   = df["Tổng tiền"].sum()
+    tong_hd = len(df)
+    dang_th = len(df[df["Trạng thái"]=="Đang thực hiện"])
+    con_no  = df["Còn lại"].sum()
+    tong_dt = df["Tổng tiền"].sum()
     c1,c2,c3,c4 = st.columns(4)
     with c1: st.markdown(f'<div class="metric-card"><h2>{tong_hd}</h2><p>📋 Tổng hợp đồng</p></div>', unsafe_allow_html=True)
     with c2: st.markdown(f'<div class="metric-card"><h2 style="color:#e67e22;">{dang_th}</h2><p>⚡ Đang thực hiện</p></div>', unsafe_allow_html=True)
@@ -1758,129 +1767,84 @@ def page_hopdong():
     with c4: st.markdown(f'<div class="metric-card"><h2 style="color:#e74c3c;">{con_no/1_000_000:.1f}M</h2><p>⚠️ Còn nợ</p></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    tab1, tab2, tab3 = st.tabs(["📋 Danh sách hợp đồng", "🔍 Chi tiết hợp đồng", "➕ Lập hợp đồng mới"])
 
-    with tab1:
-        # Search
-        search = st.text_input("🔍 Tìm theo tên, SĐT, mã HĐ...", placeholder="Nhập từ khoá...")
-        tt_f   = st.selectbox("Trạng thái", ["Tất cả","Đặt lịch","Đang thực hiện","Hoàn thành","Hủy"])
-        df_show = df.copy()
-        if search:
-            mask = (df_show["Khách hàng"].str.contains(search, case=False, na=False) |
-                    df_show["SĐT"].str.contains(search, case=False, na=False) |
-                    df_show["Mã HĐ"].str.contains(search, case=False, na=False))
-            df_show = df_show[mask]
-        if tt_f != "Tất cả":
-            df_show = df_show[df_show["Trạng thái"]==tt_f]
+    # ── Tìm kiếm & lọc ────────────────────────────────────
+    c1, c2 = st.columns([3,1])
+    with c1: search = st.text_input("🔍 Tìm theo tên, SĐT, mã HĐ...", placeholder="Nhập từ khoá...", label_visibility="collapsed")
+    with c2: tt_f   = st.selectbox("Trạng thái", ["Tất cả","Đặt lịch","Đang thực hiện","Hoàn thành","Hủy"], label_visibility="collapsed")
 
-        # Card table
-        for _, row in df_show.iterrows():
-            con_lai_color = "#e74c3c" if row["Còn lại"] > 0 else "#27ae60"
-            tt_color = {"Đang thực hiện":"#e67e22","Hoàn thành":"#27ae60","Đặt lịch":"#3498db","Hủy":"#e74c3c"}.get(row["Trạng thái"],"#888")
-            st.markdown(f'''
-            <div style="background:#2A2618;border:1px solid #C9A84C33;border-radius:10px;
-                        padding:14px 18px;margin-bottom:10px;
-                        box-shadow:0 2px 8px rgba(0,0,0,0.2);">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
-                    <div>
-                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-                            <span style="color:#C9A84C;font-weight:700;font-size:0.8rem;">{row["Mã HĐ"]}</span>
-                            <span style="background:{tt_color}22;color:{tt_color};font-size:0.68rem;
-                                         font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid {tt_color}44;">{row["Trạng thái"]}</span>
-                        </div>
-                        <div style="font-size:1rem;color:#FAF6EE;font-weight:700;">{row["Khách hàng"]}</div>
-                        <div style="font-size:0.78rem;color:#FAF6EE88;margin-top:2px;">📞 {row["SĐT"]} &nbsp;|&nbsp; 🎁 {row["Gói chụp"]}</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-size:0.75rem;color:#FAF6EE88;">Tổng HĐ</div>
-                        <div style="color:#E8D08A;font-weight:800;font-size:1rem;">{int(row["Tổng tiền"]):,}đ</div>
-                        <div style="font-size:0.72rem;color:#27ae60;">Đã TT: {int(row["Đã TT"]):,}đ</div>
-                        <div style="font-size:0.72rem;color:{con_lai_color};font-weight:700;">Còn: {int(row["Còn lại"]):,}đ</div>
-                    </div>
-                </div>
-                <div style="height:1px;background:#C9A84C22;margin:10px 0;"></div>
-                <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:0.75rem;color:#FAF6EE88;">
-                    <span>📅 Chụp: <b style="color:#FAF6EE;">{row["Ngày chụp"]}</b></span>
-                    <span>💒 Cưới: <b style="color:#FAF6EE;">{row["Ngày cưới"]}</b></span>
-                    <span>📷 {row["Thợ chụp"] or "Chưa giao"}</span>
-                    <span>💄 {row["Thợ makeup"] or "Chưa giao"}</span>
-                </div>
-            </div>
-            '''.replace(",","."), unsafe_allow_html=True)
+    df_show = df.copy()
+    if search:
+        mask = (df_show["Khách hàng"].str.contains(search, case=False, na=False) |
+                df_show["SĐT"].str.contains(search, case=False, na=False) |
+                df_show["Mã HĐ"].str.contains(search, case=False, na=False))
+        df_show = df_show[mask]
+    if tt_f != "Tất cả":
+        df_show = df_show[df_show["Trạng thái"]==tt_f]
 
-    with tab2:
-        ma_list = df["Mã HĐ"].tolist()
-        chon_hd = st.selectbox("Chọn Mã hợp đồng", ma_list)
-        row_hd  = df[df["Mã HĐ"]==chon_hd].iloc[0]
+    st.markdown(f"**{len(df_show)} hợp đồng** phù hợp", unsafe_allow_html=False)
 
-        c1, c2 = st.columns(2)
-        with c1:
-            st.markdown(f"""
-            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;margin-bottom:12px;">
-                <div style="color:#C9A84C;font-weight:700;margin-bottom:10px;">👤 Thông tin khách hàng</div>
-                <div style="font-size:0.9rem;line-height:2;">
-                    <div><b style="color:#FAF6EE;">{row_hd["Khách hàng"]}</b></div>
-                    <div style="color:#FAF6EE88;">📞 {row_hd["SĐT"]}</div>
-                    <div style="color:#FAF6EE88;">🎁 {row_hd["Gói chụp"]}</div>
-                </div>
-            </div>
-            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;">
-                <div style="color:#C9A84C;font-weight:700;margin-bottom:10px;">📅 Lịch hẹn</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.82rem;">
-                    <div><div style="color:#FAF6EE88;">Ngày chụp</div><div style="color:#FAF6EE;font-weight:700;">{row_hd["Ngày chụp"]}</div></div>
-                    <div><div style="color:#FAF6EE88;">Ngày cưới</div><div style="color:#FAF6EE;font-weight:700;">{row_hd["Ngày cưới"]}</div></div>
-                    <div><div style="color:#FAF6EE88;">Ngày ăn hỏi</div><div style="color:#FAF6EE;font-weight:700;">{row_hd["Ngày ăn hỏi"]}</div></div>
-                    <div><div style="color:#FAF6EE88;">Ngày trả ảnh</div><div style="color:#E8D08A;font-weight:700;">{row_hd["Ngày trả ảnh"]}</div></div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        with c2:
-            st.markdown(f"""
-            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;margin-bottom:12px;">
-                <div style="color:#C9A84C;font-weight:700;margin-bottom:10px;">👥 Ekip phụ trách</div>
-                <div style="font-size:0.85rem;line-height:2;">
-                    <div>📷 Thợ chụp: <b style="color:#FAF6EE;">{row_hd["Thợ chụp"] or "Chưa giao"}</b></div>
-                    <div>💄 Thợ makeup: <b style="color:#FAF6EE;">{row_hd["Thợ makeup"] or "Chưa giao"}</b></div>
-                    <div>🛎️ Lễ tân: <b style="color:#FAF6EE;">{row_hd["Lễ tân"] or "Chưa giao"}</b></div>
-                </div>
-            </div>
-            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;">
-                <div style="color:#C9A84C;font-weight:700;margin-bottom:10px;">💰 Lịch thanh toán</div>
-                <div style="font-size:0.85rem;line-height:2.2;">
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#FAF6EE88;">Tổng hợp đồng</span>
-                        <span style="color:#E8D08A;font-weight:700;">{int(row_hd["Tổng tiền"]):,}đ</span>
+    # ── Danh sách card — 1 chạm vào chi tiết ─────────────
+    for _, row in df_show.iterrows():
+        tt_color = {"Đang thực hiện":"#e67e22","Hoàn thành":"#27ae60",
+                    "Đặt lịch":"#3498db","Hủy":"#e74c3c"}.get(row["Trạng thái"],"#888")
+        con_lai_color = "#e74c3c" if row["Còn lại"] > 0 else "#27ae60"
+        pct = int(row["Đã TT"] / row["Tổng tiền"] * 100) if row["Tổng tiền"] > 0 else 0
+
+        # Progress bar
+        progress_html = f'''
+        <div style="height:3px;background:#C9A84C22;border-radius:2px;margin-top:8px;">
+            <div style="height:3px;width:{pct}%;background:linear-gradient(90deg,#C9A84C,#27ae60);border-radius:2px;"></div>
+        </div>
+        <div style="font-size:0.65rem;color:#FAF6EE44;text-align:right;margin-top:1px;">{pct}% đã thanh toán</div>
+        '''
+
+        st.markdown(f'''
+        <div style="background:#2A2618;border:1px solid #C9A84C33;border-radius:10px;
+                    padding:14px 18px;margin-bottom:8px;
+                    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+                    transition:border 0.2s;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+                <div style="flex:1;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                        <span style="color:#C9A84C;font-weight:700;font-size:0.8rem;">{row["Mã HĐ"]}</span>
+                        <span style="background:{tt_color}22;color:{tt_color};font-size:0.68rem;
+                                     font-weight:700;padding:2px 8px;border-radius:10px;
+                                     border:1px solid {tt_color}44;">{row["Trạng thái"]}</span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#FAF6EE88;">Đã thanh toán</span>
-                        <span style="color:#27ae60;font-weight:700;">{int(row_hd["Đã TT"]):,}đ</span>
+                    <div style="font-size:1rem;color:#FAF6EE;font-weight:700;">{row["Khách hàng"]}</div>
+                    <div style="font-size:0.75rem;color:#FAF6EE88;margin-top:3px;">
+                        📞 {row["SĐT"]} &nbsp;|&nbsp; 🎁 {row["Gói chụp"]}
                     </div>
-                    <div style="height:1px;background:#C9A84C22;margin:4px 0;"></div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span style="color:#FAF6EE;font-weight:700;">Còn lại</span>
-                        <span style="color:#e74c3c;font-weight:800;">{int(row_hd["Còn lại"]):,}đ</span>
+                    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.72rem;color:#FAF6EE88;margin-top:6px;">
+                        <span>📅 Chụp: <b style="color:#FAF6EE;">{row["Ngày chụp"]}</b></span>
+                        <span>💒 Cưới: <b style="color:#FAF6EE;">{row["Ngày cưới"]}</b></span>
+                        <span>📷 {row["Thợ chụp"] or "⚠️ Chưa giao"}</span>
+                        <span>💄 {row["Thợ makeup"] or "⚠️ Chưa giao"}</span>
                     </div>
                 </div>
+                <div style="text-align:right;min-width:130px;">
+                    <div style="font-size:0.72rem;color:#FAF6EE66;">Tổng HĐ</div>
+                    <div style="color:#E8D08A;font-weight:800;font-size:1.05rem;">{int(row["Tổng tiền"]):,}đ</div>
+                    <div style="font-size:0.72rem;color:#27ae60;">Đã TT: {int(row["Đã TT"]):,}đ</div>
+                    <div style="font-size:0.72rem;color:{con_lai_color};font-weight:700;">Còn: {int(row["Còn lại"]):,}đ</div>
+                </div>
             </div>
-            """.replace(",","."), unsafe_allow_html=True)
+            {progress_html}
+        </div>
+        '''.replace(",","."), unsafe_allow_html=True)
 
-        # Update
-        st.markdown("<br>", unsafe_allow_html=True)
-        with st.form("form_update_hd"):
-            c1,c2,c3 = st.columns(3)
-            with c1: new_tt  = st.selectbox("Trạng thái", ["Đặt lịch","Đang thực hiện","Hoàn thành","Hủy"])
-            with c2: new_datt= st.number_input("Cập nhật Đã TT (đ)", value=int(row_hd["Đã TT"]), step=500000)
-            with c3: new_gc  = st.text_input("Ghi chú", value=str(row_hd["Ghi chú"]))
-            if st.form_submit_button("💾 Cập nhật hợp đồng", use_container_width=True):
-                mask = st.session_state.df_hopdong["Mã HĐ"]==chon_hd
-                st.session_state.df_hopdong.loc[mask,"Trạng thái"] = new_tt
-                st.session_state.df_hopdong.loc[mask,"Đã TT"]      = new_datt
-                st.session_state.df_hopdong.loc[mask,"Còn lại"]    = int(row_hd["Tổng tiền"]) - new_datt
-                st.session_state.df_hopdong.loc[mask,"Ghi chú"]    = new_gc
-                st.success("✅ Đã cập nhật hợp đồng!"); st.rerun()
+        # Nút 1 chạm — mở chi tiết
+        if st.button(f"👁️ Xem chi tiết  {row['Mã HĐ']}", key=f"btn_hd_{row['Mã HĐ']}",
+                     use_container_width=True):
+            st.session_state.selected_hd = row["Mã HĐ"]
+            st.rerun()
 
-    with tab3:
-        goi_options = ["Gói Studio I","Gói Studio II","Gói Studio III","Gói Ảnh Phòng","Gói Ảnh Phòng VIP","Gói Ngoại Cảnh"]
+    # ── Lập hợp đồng mới ──────────────────────────────────
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.expander("➕ Lập hợp đồng mới"):
+        goi_options = ["Gói Studio I","Gói Studio II","Gói Studio III",
+                       "Gói Ảnh Phòng","Gói Ảnh Phòng VIP","Gói Ngoại Cảnh"]
         with st.form("form_add_hd"):
             c1,c2 = st.columns(2)
             with c1:
@@ -1896,7 +1860,7 @@ def page_hopdong():
                 ngay_ah   = st.date_input("💍 Ngày ăn hỏi", min_value=date.today())
                 ngay_tra  = st.date_input("🖼️ Ngày hẹn trả ảnh", min_value=date.today())
             ghi_chu = st.text_area("📝 Ghi chú", height=60)
-            if st.form_submit_button("✅ Lập hợp đồng mới", use_container_width=True):
+            if st.form_submit_button("✅ Lập hợp đồng", use_container_width=True):
                 if kh_name:
                     new_row = {
                         "Mã HĐ":ma_hd,"Khách hàng":kh_name,"SĐT":sdt,
@@ -1908,8 +1872,220 @@ def page_hopdong():
                     }
                     st.session_state.df_hopdong = pd.concat(
                         [st.session_state.df_hopdong, pd.DataFrame([new_row])], ignore_index=True)
-                    st.success(f"✅ Đã lập hợp đồng {ma_hd} cho {kh_name}!"); st.rerun()
+                    st.success(f"✅ Đã lập hợp đồng {ma_hd} cho {kh_name}!")
+                    st.rerun()
+                else:
+                    st.error("Vui lòng nhập tên khách hàng!")
 
+
+def _show_hopdong_detail(ma_hd):
+    """Màn hình chi tiết hợp đồng — 1 chạm quay lại"""
+    df  = st.session_state.df_hopdong
+    row = df[df["Mã HĐ"]==ma_hd]
+    if row.empty:
+        st.error("Không tìm thấy hợp đồng!")
+        st.session_state.selected_hd = None
+        return
+    r = row.iloc[0]
+
+    # Header + nút quay lại
+    c_back, c_title = st.columns([1,6])
+    with c_back:
+        if st.button("← Quay lại", use_container_width=True):
+            st.session_state.selected_hd = None
+            st.rerun()
+    with c_title:
+        tt_color = {"Đang thực hiện":"#e67e22","Hoàn thành":"#27ae60",
+                    "Đặt lịch":"#3498db","Hủy":"#e74c3c"}.get(r["Trạng thái"],"#888")
+        st.markdown(f'''
+        <div style="display:flex;align-items:center;gap:12px;padding:6px 0;">
+            <span style="color:#C9A84C;font-weight:800;font-size:1.1rem;">{r["Mã HĐ"]}</span>
+            <span style="background:{tt_color}22;color:{tt_color};font-size:0.78rem;
+                         font-weight:700;padding:3px 12px;border-radius:10px;
+                         border:1px solid {tt_color}44;">{r["Trạng thái"]}</span>
+            <span style="color:#FAF6EE88;font-size:0.78rem;">Ngày lập: {date.today().strftime("%d/%m/%Y")}</span>
+        </div>
+        ''', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Row 1: Thông tin khách + Lịch hẹn ────────────────
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown(f'''
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:12px;padding:18px;height:100%;">
+            <div style="color:#C9A84C;font-weight:700;font-size:0.85rem;margin-bottom:12px;">👤 THÔNG TIN KHÁCH HÀNG</div>
+            <div style="font-size:1.1rem;color:#FAF6EE;font-weight:800;margin-bottom:6px;">{r["Khách hàng"]}</div>
+            <div style="font-size:0.85rem;color:#FAF6EE88;margin-bottom:4px;">📞 {r["SĐT"]}</div>
+            <div style="font-size:0.85rem;color:#E8D08A;">🎁 {r["Gói chụp"]}</div>
+            <div style="font-size:0.78rem;color:#FAF6EE66;margin-top:8px;">{r["Ghi chú"] or ""}</div>
+        </div>
+        ''', unsafe_allow_html=True)
+    with c2:
+        st.markdown(f'''
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:12px;padding:18px;height:100%;">
+            <div style="color:#C9A84C;font-weight:700;font-size:0.85rem;margin-bottom:12px;">📅 LỊCH HẸN</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.85rem;">
+                <div>
+                    <div style="color:#FAF6EE66;font-size:0.72rem;margin-bottom:2px;">Ngày ăn hỏi</div>
+                    <div style="color:#FAF6EE;font-weight:700;">{r["Ngày ăn hỏi"]}</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE66;font-size:0.72rem;margin-bottom:2px;">Ngày cưới</div>
+                    <div style="color:#FAF6EE;font-weight:700;">{r["Ngày cưới"]}</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE66;font-size:0.72rem;margin-bottom:2px;">Ngày chụp</div>
+                    <div style="color:#FAF6EE;font-weight:700;">{r["Ngày chụp"]}</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE66;font-size:0.72rem;margin-bottom:2px;">Ngày hẹn trả ảnh</div>
+                    <div style="color:#E8D08A;font-weight:700;">{r["Ngày trả ảnh"]}</div>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Row 2: Ekip + Thanh toán ─────────────────────────
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown(f'''
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:12px;padding:18px;">
+            <div style="color:#C9A84C;font-weight:700;font-size:0.85rem;margin-bottom:12px;">👥 EKIP PHỤ TRÁCH</div>
+            <div style="font-size:0.88rem;line-height:2.2;">
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid #C9A84C22;padding-bottom:6px;margin-bottom:6px;">
+                    <span style="color:#FAF6EE88;">📷 Thợ chụp</span>
+                    <span style="color:{"#FAF6EE" if r["Thợ chụp"] else "#e74c3c"};font-weight:600;">
+                        {r["Thợ chụp"] or "⚠️ Chưa giao"}
+                    </span>
+                </div>
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid #C9A84C22;padding-bottom:6px;margin-bottom:6px;">
+                    <span style="color:#FAF6EE88;">💄 Thợ makeup</span>
+                    <span style="color:{"#FAF6EE" if r["Thợ makeup"] else "#e74c3c"};font-weight:600;">
+                        {r["Thợ makeup"] or "⚠️ Chưa giao"}
+                    </span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:#FAF6EE88;">🛎️ Lễ tân</span>
+                    <span style="color:{"#FAF6EE" if r["Lễ tân"] else "#e74c3c"};font-weight:600;">
+                        {r["Lễ tân"] or "⚠️ Chưa giao"}
+                    </span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    with c2:
+        pct = int(r["Đã TT"]/r["Tổng tiền"]*100) if r["Tổng tiền"] > 0 else 0
+        con_lai_c = "#e74c3c" if r["Còn lại"] > 0 else "#27ae60"
+        st.markdown(f'''
+        <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:12px;padding:18px;">
+            <div style="color:#C9A84C;font-weight:700;font-size:0.85rem;margin-bottom:12px;">💰 LỊCH THANH TOÁN</div>
+            <div style="font-size:0.88rem;line-height:2.2;">
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:#FAF6EE88;">Tổng hợp đồng</span>
+                    <span style="color:#E8D08A;font-weight:700;">{int(r["Tổng tiền"]):,}đ</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:#FAF6EE88;">Đã thanh toán</span>
+                    <span style="color:#27ae60;font-weight:700;">+{int(r["Đã TT"]):,}đ</span>
+                </div>
+                <div style="height:1px;background:#C9A84C22;margin:6px 0;"></div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:#FAF6EE;font-weight:700;">Còn lại</span>
+                    <span style="color:{con_lai_c};font-weight:800;font-size:1rem;">{int(r["Còn lại"]):,}đ</span>
+                </div>
+            </div>
+            <div style="margin-top:10px;">
+                <div style="height:6px;background:#C9A84C22;border-radius:3px;">
+                    <div style="height:6px;width:{pct}%;background:linear-gradient(90deg,#C9A84C,#27ae60);border-radius:3px;"></div>
+                </div>
+                <div style="font-size:0.68rem;color:#FAF6EE44;text-align:right;margin-top:2px;">{pct}% đã thanh toán</div>
+            </div>
+        </div>
+        '''.replace(",","."), unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Gói dịch vụ ───────────────────────────────────────
+    with st.expander("🎁 Gói dịch vụ & Chi tiết", expanded=True):
+        GOI_INFO = {
+            "Gói Studio I":      {"dv":["Chụp ảnh ½ ngày tại Studio","01 váy VIP, 01 váy Simple","02 vest cao cấp","Makeup & làm tóc","File gốc + 15 file chỉnh sửa nghệ thuật"],"gia_dv":5000000,"gia_sp":3500000},
+            "Gói Studio II":     {"dv":["Chụp ảnh 1 ngày tại Studio","02 váy VIP","02 vest cao cấp","Makeup & làm tóc","File gốc + 25 file chỉnh sửa"],"gia_dv":7000000,"gia_sp":4500000},
+            "Gói Studio III":    {"dv":["Chụp ảnh 1.5 ngày","03 váy VIP + 01 Luxury","03 vest","Makeup & làm tóc","File gốc + 40 file + Video highlight"],"gia_dv":10000000,"gia_sp":5000000},
+            "Gói Ảnh Phòng":     {"dv":["Chụp ảnh phòng ½ ngày","01 váy VIP","01 vest","Makeup & làm tóc","File gốc + 10 file"],"gia_dv":3500000,"gia_sp":2500000},
+            "Gói Ảnh Phòng VIP": {"dv":["Chụp ảnh phòng 1 ngày","02 váy VIP","02 vest cao cấp","Makeup & làm tóc","File gốc + 20 file"],"gia_dv":6000000,"gia_sp":4000000},
+            "Gói Ngoại Cảnh":    {"dv":["Chụp ảnh ngoại cảnh 1 ngày","02 váy VIP + 01 Luxury","02 vest","Makeup & làm tóc","File gốc + 30 file chỉnh sửa"],"gia_dv":8000000,"gia_sp":6000000},
+        }
+        goi = GOI_INFO.get(r["Gói chụp"], {"dv":[],"gia_dv":0,"gia_sp":0})
+        dv_list = "".join([f'<li style="margin:4px 0;color:#FAF6EE88;">{d}</li>' for d in goi["dv"]])
+        thue_dv  = int(goi["gia_dv"] * 0.07)
+        thue_sp  = int(goi["gia_sp"] * 0.015)
+        st.markdown(f'''
+        <div style="background:#1C1A10;border:1px solid #C9A84C33;border-radius:10px;padding:16px;">
+            <div style="color:#C9A84C;font-weight:700;margin-bottom:8px;">{r["Gói chụp"]}</div>
+            <div style="font-size:0.82rem;margin-bottom:12px;">
+                <div style="color:#FAF6EE88;margin-bottom:4px;">Dịch vụ bao gồm:</div>
+                <ul style="margin:0;padding-left:18px;">{dv_list}</ul>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.82rem;border-top:1px solid #C9A84C22;padding-top:12px;">
+                <div>
+                    <div style="color:#FAF6EE66;">Dịch vụ (thuế 7%)</div>
+                    <div style="color:#FAF6EE;font-weight:700;">{int(goi["gia_dv"]):,}đ</div>
+                    <div style="color:#e67e22;font-size:0.72rem;">Thuế: {thue_dv:,}đ</div>
+                </div>
+                <div>
+                    <div style="color:#FAF6EE66;">Sản phẩm (thuế 1.5%)</div>
+                    <div style="color:#FAF6EE;font-weight:700;">{int(goi["gia_sp"]):,}đ</div>
+                    <div style="color:#3498db;font-size:0.72rem;">Thuế: {thue_sp:,}đ</div>
+                </div>
+            </div>
+        </div>
+        '''.replace(",","."), unsafe_allow_html=True)
+
+    # ── Cập nhật hợp đồng ─────────────────────────────────
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.expander("✏️ Cập nhật hợp đồng"):
+        with st.form(f"form_update_hd_{ma_hd}"):
+            c1,c2,c3 = st.columns(3)
+            with c1:
+                new_tt   = st.selectbox("Trạng thái", ["Đặt lịch","Đang thực hiện","Hoàn thành","Hủy"],
+                    index=["Đặt lịch","Đang thực hiện","Hoàn thành","Hủy"].index(r["Trạng thái"]) if r["Trạng thái"] in ["Đặt lịch","Đang thực hiện","Hoàn thành","Hủy"] else 0)
+                new_datt = st.number_input("Đã thanh toán (đ)", value=int(r["Đã TT"]), step=500000)
+            with c2:
+                new_thochup  = st.text_input("Thợ chụp", value=str(r["Thợ chụp"]))
+                new_thomu    = st.text_input("Thợ makeup", value=str(r["Thợ makeup"]))
+            with c3:
+                new_letan = st.text_input("Lễ tân", value=str(r["Lễ tân"]))
+                new_gc    = st.text_input("Ghi chú", value=str(r["Ghi chú"]))
+            if st.form_submit_button("💾 Lưu thay đổi", use_container_width=True):
+                mask = st.session_state.df_hopdong["Mã HĐ"]==ma_hd
+                st.session_state.df_hopdong.loc[mask,"Trạng thái"] = new_tt
+                st.session_state.df_hopdong.loc[mask,"Đã TT"]      = new_datt
+                st.session_state.df_hopdong.loc[mask,"Còn lại"]    = int(r["Tổng tiền"]) - new_datt
+                st.session_state.df_hopdong.loc[mask,"Thợ chụp"]   = new_thochup
+                st.session_state.df_hopdong.loc[mask,"Thợ makeup"]  = new_thomu
+                st.session_state.df_hopdong.loc[mask,"Lễ tân"]     = new_letan
+                st.session_state.df_hopdong.loc[mask,"Ghi chú"]    = new_gc
+                st.success("✅ Đã lưu thay đổi!"); st.rerun()
+
+    # Hậu kỳ liên quan
+    df_hk = st.session_state.df_hauky[st.session_state.df_hauky["Mã HĐ"]==ma_hd]
+    if not df_hk.empty:
+        st.markdown("<br>", unsafe_allow_html=True)
+        with st.expander(f"🎨 Hậu kỳ liên quan ({len(df_hk)} công việc)"):
+            for _, hk in df_hk.iterrows():
+                tc = {"Chưa giao":"#e74c3c","Chờ xử lý":"#e67e22","Đang làm":"#3498db","Hoàn thành":"#27ae60"}.get(hk["Trạng thái HK"],"#888")
+                st.markdown(f'''
+                <div style="background:#1C1A10;border-left:3px solid {tc};border-radius:0 8px 8px 0;
+                            padding:10px 14px;margin-bottom:6px;font-size:0.82rem;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:{tc};font-weight:700;">{hk["Trạng thái HK"]}</span>
+                        <span style="color:#FAF6EE88;">Hẹn trả: {hk["Ngày hẹn trả"]}</span>
+                    </div>
+                    <div style="color:#FAF6EE;margin-top:2px;">{hk["Loại"]} — {hk["Nhân viên HK"] or "Chưa giao"}</div>
+                </div>''', unsafe_allow_html=True)
 
 # ============================================================
 # TRANG: LỊCH HẸN — Calendar view
