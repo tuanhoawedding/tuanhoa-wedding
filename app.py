@@ -1740,33 +1740,6 @@ def page_personnel():
     """, unsafe_allow_html=True)
 
 # ============================================================
-# MAIN ROUTER
-# ============================================================
-if not st.session_state.logged_in:
-    show_login()
-else:
-    selected = show_sidebar()
-    page_map = {
-        "🏠 Tổng quan":             page_dashboard,
-        "📋 Hợp đồng":              page_hopdong,
-        "🗓️ Lịch hẹn":              page_lichhens,
-        "💄 Makeup":                page_makeup,
-        "🎨 Hậu kỳ":               page_hauky,
-        "👥 Khách hàng & Tiến độ":  page_customers,
-        "📅 Lịch làm việc":         page_schedule,
-        "👗 Kho váy cưới":          page_vay,
-        "🥻 Kho áo dài":            page_aodai,
-        "👔 Kho Suit":              page_suit,
-        "📦 Giao nhận đồ":          page_borrow,
-        "💰 Thu Chi":               page_thu_chi,
-        "💵 Tính Lương":            page_luong,
-        "📊 Thuế & Báo cáo":        page_thue,
-        "⚙️ Quản lý nhân sự":       page_personnel,
-    }
-    fn = page_map.get(selected)
-    if fn: fn()
-
-# ============================================================
 # TRANG: HỢP ĐỒNG
 # ============================================================
 def page_hopdong():
@@ -2289,3 +2262,31 @@ def page_hauky():
                     [st.session_state.df_hauky, pd.DataFrame([new_row])], ignore_index=True)
                 st.success(f"✅ Đã giao việc hậu kỳ {loai_hk} cho {kh_hk}"); st.rerun()
 
+
+
+# ============================================================
+# MAIN ROUTER
+# ============================================================
+if not st.session_state.logged_in:
+    show_login()
+else:
+    selected = show_sidebar()
+    page_map = {
+        "🏠 Tổng quan":             page_dashboard,
+        "📋 Hợp đồng":              page_hopdong,
+        "🗓️ Lịch hẹn":              page_lichhens,
+        "💄 Makeup":                page_makeup,
+        "🎨 Hậu kỳ":               page_hauky,
+        "👥 Khách hàng & Tiến độ":  page_customers,
+        "📅 Lịch làm việc":         page_schedule,
+        "👗 Kho váy cưới":          page_vay,
+        "🥻 Kho áo dài":            page_aodai,
+        "👔 Kho Suit":              page_suit,
+        "📦 Giao nhận đồ":          page_borrow,
+        "💰 Thu Chi":               page_thu_chi,
+        "💵 Tính Lương":            page_luong,
+        "📊 Thuế & Báo cáo":        page_thue,
+        "⚙️ Quản lý nhân sự":       page_personnel,
+    }
+    fn = page_map.get(selected)
+    if fn: fn()
