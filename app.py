@@ -212,15 +212,16 @@ USERS = {
 }
 
 ROLE_MENUS = {
-    "Admin":       ["🏠 Tổng quan", "👥 Khách hàng & Tiến độ", "📅 Lịch làm việc",
+    "Admin":       ["🏠 Tổng quan", "📋 Hợp đồng", "🗓️ Lịch hẹn", "💄 Makeup",
+                    "🎨 Hậu kỳ", "📅 Lịch làm việc",
                     "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ",
                     "💰 Thu Chi", "💵 Tính Lương", "📊 Thuế & Báo cáo",
                     "⚙️ Quản lý nhân sự"],
-    "Lễ tân":      ["🏠 Tổng quan", "👥 Khách hàng & Tiến độ", "📅 Lịch làm việc", "📦 Giao nhận đồ"],
+    "Lễ tân":      ["🏠 Tổng quan", "📋 Hợp đồng", "🗓️ Lịch hẹn", "📦 Giao nhận đồ"],
     "Quản lý kho": ["🏠 Tổng quan", "👗 Kho váy cưới", "🥻 Kho áo dài", "👔 Kho Suit", "📦 Giao nhận đồ"],
-    "Makeup":      ["🏠 Tổng quan", "📅 Lịch làm việc"],
-    "Nhiếp ảnh":   ["🏠 Tổng quan", "📅 Lịch làm việc"],
-    "Design":      ["🏠 Tổng quan", "📅 Lịch làm việc"],
+    "Makeup":      ["🏠 Tổng quan", "💄 Makeup", "🗓️ Lịch hẹn"],
+    "Nhiếp ảnh":   ["🏠 Tổng quan", "📅 Lịch làm việc", "🗓️ Lịch hẹn"],
+    "Design":      ["🏠 Tổng quan", "🎨 Hậu kỳ", "📅 Lịch làm việc"],
 }
 
 # Config hiển thị cho từng loại công việc
@@ -331,6 +332,78 @@ def init_session():
             {"Mã NV":"NV003","Họ tên":"Nguyễn Thiết Kế",  "Chức vụ":"Designer",     "Phòng ban":"Design",   "Lương cơ bản":9000000, "Hệ số":1.2,"Số ngày công":26,"Thưởng":0,      "Khấu trừ":0},
             {"Mã NV":"NV004","Họ tên":"Trần Thị Lan",     "Chức vụ":"Lễ tân",       "Phòng ban":"Lễ tân",   "Lương cơ bản":6000000, "Hệ số":1.0,"Số ngày công":26,"Thưởng":200000, "Khấu trừ":0},
             {"Mã NV":"NV005","Họ tên":"Lê Văn Kho",       "Chức vụ":"Quản lý kho",  "Phòng ban":"Kho",      "Lương cơ bản":7000000, "Hệ số":1.1,"Số ngày công":25,"Thưởng":300000, "Khấu trừ":0},
+        ])
+
+
+    # ── Hợp đồng ─────────────────────────────────────────
+    if "df_hopdong" not in st.session_state:
+        st.session_state.df_hopdong = pd.DataFrame([
+            {"Mã HĐ":"HD001","Khách hàng":"Nguyễn Văn A - Trần Thị B","SĐT":"0901234567",
+             "Gói chụp":"Gói Studio I","Ngày chụp":"2025-08-10","Ngày cưới":"2025-08-15",
+             "Ngày ăn hỏi":"2025-08-14","Ngày trả ảnh":"2025-09-10",
+             "Thợ chụp":"Đỗ Văn Ảnh","Thợ makeup":"Phạm Thị Hoa","Lễ tân":"Trần Thị Lan",
+             "Tổng tiền":9800000,"Đã TT":7800000,"Còn lại":2000000,
+             "Trạng thái":"Đang thực hiện","Ghi chú":""},
+            {"Mã HĐ":"HD002","Khách hàng":"Lê Văn C - Hoàng Thị D","SĐT":"0912345678",
+             "Gói chụp":"Gói Ảnh Phòng","Ngày chụp":"2025-08-12","Ngày cưới":"2025-08-20",
+             "Ngày ăn hỏi":"2025-08-18","Ngày trả ảnh":"2025-09-15",
+             "Thợ chụp":"Đỗ Văn Ảnh","Thợ makeup":"Phạm Thị Hoa","Lễ tân":"Trần Thị Lan",
+             "Tổng tiền":6100000,"Đã TT":5100000,"Còn lại":1000000,
+             "Trạng thái":"Đang thực hiện","Ghi chú":""},
+            {"Mã HĐ":"HD003","Khách hàng":"Phạm Minh E - Vũ Thị F","SĐT":"0923456789",
+             "Gói chụp":"Gói Studio III","Ngày chụp":"2025-09-02","Ngày cưới":"2025-09-10",
+             "Ngày ăn hỏi":"2025-09-08","Ngày trả ảnh":"2025-10-02",
+             "Thợ chụp":"","Thợ makeup":"","Lễ tân":"",
+             "Tổng tiền":14500000,"Đã TT":5000000,"Còn lại":9500000,
+             "Trạng thái":"Đặt lịch","Ghi chú":"Yêu cầu chụp ngoại cảnh"},
+        ])
+
+    # ── Lịch hẹn ─────────────────────────────────────────
+    if "df_lichhens" not in st.session_state:
+        today = date.today()
+        st.session_state.df_lichhens = pd.DataFrame([
+            {"Mã LH":"LH001","Khách hàng":"Nguyễn Văn A - Trần Thị B","Loại":"Chụp ảnh",
+             "Ngày":str(today),"Giờ":"08:00","Nhân viên":"Đỗ Văn Ảnh","Trạng thái":"Chờ"},
+            {"Mã LH":"LH002","Khách hàng":"Nguyễn Văn A - Trần Thị B","Loại":"Trả ảnh",
+             "Ngày":str(today + timedelta(days=30)),"Giờ":"09:00","Nhân viên":"Trần Thị Lan","Trạng thái":"Chờ"},
+            {"Mã LH":"LH003","Khách hàng":"Lê Văn C - Hoàng Thị D","Loại":"Ăn hỏi",
+             "Ngày":str(today + timedelta(days=5)),"Giờ":"06:00","Nhân viên":"Đỗ Văn Ảnh","Trạng thái":"Chờ"},
+            {"Mã LH":"LH004","Khách hàng":"Lê Văn C - Hoàng Thị D","Loại":"Đám cưới",
+             "Ngày":str(today + timedelta(days=7)),"Giờ":"05:30","Nhân viên":"Đỗ Văn Ảnh","Trạng thái":"Chờ"},
+            {"Mã LH":"LH005","Khách hàng":"Phạm Minh E - Vũ Thị F","Loại":"Chụp ảnh",
+             "Ngày":str(today + timedelta(days=15)),"Giờ":"07:30","Nhân viên":"","Trạng thái":"Chờ"},
+        ])
+
+    # ── Makeup ───────────────────────────────────────────
+    if "df_makeup" not in st.session_state:
+        today = date.today()
+        st.session_state.df_makeup = pd.DataFrame([
+            {"Mã MU":"MU001","Khách hàng":"Nguyễn Văn A - Trần Thị B","Loại makeup":"Makeup chụp",
+             "Ngày":str(today),"Giờ":"05:30","Thợ makeup":"Phạm Thị Hoa","Trạng thái":"Chờ xác nhận","Ghi chú":""},
+            {"Mã MU":"MU002","Khách hàng":"Lê Văn C - Hoàng Thị D","Loại makeup":"Makeup ăn hỏi",
+             "Ngày":str(today + timedelta(days=5)),"Giờ":"04:30","Thợ makeup":"Phạm Thị Hoa","Trạng thái":"Chờ xác nhận","Ghi chú":""},
+            {"Mã MU":"MU003","Khách hàng":"Lê Văn C - Hoàng Thị D","Loại makeup":"Makeup cưới",
+             "Ngày":str(today + timedelta(days=7)),"Giờ":"03:00","Thợ makeup":"","Trạng thái":"Chưa giao","Ghi chú":""},
+            {"Mã MU":"MU004","Khách hàng":"Phạm Minh E - Vũ Thị F","Loại makeup":"Makeup chụp",
+             "Ngày":str(today + timedelta(days=15)),"Giờ":"05:00","Thợ makeup":"","Trạng thái":"Chưa giao","Ghi chú":""},
+        ])
+
+    # ── Hậu kỳ ───────────────────────────────────────────
+    if "df_hauky" not in st.session_state:
+        today = date.today()
+        st.session_state.df_hauky = pd.DataFrame([
+            {"Mã HK":"HK001","Khách hàng":"Nguyễn Văn A - Trần Thị B","Mã HĐ":"HD001",
+             "Loại":"Chỉnh sửa album","Nhân viên HK":"Nguyễn Thiết Kế",
+             "Ngày giao":"2025-08-10","Ngày hẹn trả":str(today + timedelta(days=30)),
+             "Trạng thái HK":"Đang làm","Ghi chú":"100 ảnh chỉnh màu"},
+            {"Mã HK":"HK002","Khách hàng":"Lê Văn C - Hoàng Thị D","Mã HĐ":"HD002",
+             "Loại":"Video slide","Nhân viên HK":"Nguyễn Thiết Kế",
+             "Ngày giao":"2025-08-12","Ngày hẹn trả":str(today + timedelta(days=10)),
+             "Trạng thái HK":"Chờ xử lý","Ghi chú":""},
+            {"Mã HK":"HK003","Khách hàng":"Phạm Minh E - Vũ Thị F","Mã HĐ":"HD003",
+             "Loại":"Chỉnh sửa album","Nhân viên HK":"",
+             "Ngày giao":"","Ngày hẹn trả":str(today + timedelta(days=45)),
+             "Trạng thái HK":"Chưa giao","Ghi chú":""},
         ])
 
 
@@ -1675,6 +1748,10 @@ else:
     selected = show_sidebar()
     page_map = {
         "🏠 Tổng quan":             page_dashboard,
+        "📋 Hợp đồng":              page_hopdong,
+        "🗓️ Lịch hẹn":              page_lichhens,
+        "💄 Makeup":                page_makeup,
+        "🎨 Hậu kỳ":               page_hauky,
         "👥 Khách hàng & Tiến độ":  page_customers,
         "📅 Lịch làm việc":         page_schedule,
         "👗 Kho váy cưới":          page_vay,
@@ -1688,3 +1765,527 @@ else:
     }
     fn = page_map.get(selected)
     if fn: fn()
+
+# ============================================================
+# TRANG: HỢP ĐỒNG
+# ============================================================
+def page_hopdong():
+    st.markdown('<div class="section-header">📋 Quản lý Hợp đồng</div>', unsafe_allow_html=True)
+    df = st.session_state.df_hopdong
+
+    # ── KPI ────────────────────────────────────────────────
+    tong_hd   = len(df)
+    dang_th   = len(df[df["Trạng thái"]=="Đang thực hiện"])
+    con_no    = df["Còn lại"].sum()
+    tong_dt   = df["Tổng tiền"].sum()
+    c1,c2,c3,c4 = st.columns(4)
+    with c1: st.markdown(f'<div class="metric-card"><h2>{tong_hd}</h2><p>📋 Tổng hợp đồng</p></div>', unsafe_allow_html=True)
+    with c2: st.markdown(f'<div class="metric-card"><h2 style="color:#e67e22;">{dang_th}</h2><p>⚡ Đang thực hiện</p></div>', unsafe_allow_html=True)
+    with c3: st.markdown(f'<div class="metric-card"><h2 style="color:#E8D08A;">{tong_dt/1_000_000:.1f}M</h2><p>💰 Tổng doanh thu</p></div>', unsafe_allow_html=True)
+    with c4: st.markdown(f'<div class="metric-card"><h2 style="color:#e74c3c;">{con_no/1_000_000:.1f}M</h2><p>⚠️ Còn nợ</p></div>', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    tab1, tab2, tab3 = st.tabs(["📋 Danh sách hợp đồng", "🔍 Chi tiết hợp đồng", "➕ Lập hợp đồng mới"])
+
+    with tab1:
+        # Search
+        search = st.text_input("🔍 Tìm theo tên, SĐT, mã HĐ...", placeholder="Nhập từ khoá...")
+        tt_f   = st.selectbox("Trạng thái", ["Tất cả","Đặt lịch","Đang thực hiện","Hoàn thành","Hủy"])
+        df_show = df.copy()
+        if search:
+            mask = (df_show["Khách hàng"].str.contains(search, case=False, na=False) |
+                    df_show["SĐT"].str.contains(search, case=False, na=False) |
+                    df_show["Mã HĐ"].str.contains(search, case=False, na=False))
+            df_show = df_show[mask]
+        if tt_f != "Tất cả":
+            df_show = df_show[df_show["Trạng thái"]==tt_f]
+
+        # Card table
+        for _, row in df_show.iterrows():
+            con_lai_color = "#e74c3c" if row["Còn lại"] > 0 else "#27ae60"
+            tt_color = {"Đang thực hiện":"#e67e22","Hoàn thành":"#27ae60","Đặt lịch":"#3498db","Hủy":"#e74c3c"}.get(row["Trạng thái"],"#888")
+            st.markdown(f'''
+            <div style="background:#2A2618;border:1px solid #C9A84C33;border-radius:10px;
+                        padding:14px 18px;margin-bottom:10px;
+                        box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                            <span style="color:#C9A84C;font-weight:700;font-size:0.8rem;">{row["Mã HĐ"]}</span>
+                            <span style="background:{tt_color}22;color:{tt_color};font-size:0.68rem;
+                                         font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid {tt_color}44;">{row["Trạng thái"]}</span>
+                        </div>
+                        <div style="font-size:1rem;color:#FAF6EE;font-weight:700;">{row["Khách hàng"]}</div>
+                        <div style="font-size:0.78rem;color:#FAF6EE88;margin-top:2px;">📞 {row["SĐT"]} &nbsp;|&nbsp; 🎁 {row["Gói chụp"]}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.75rem;color:#FAF6EE88;">Tổng HĐ</div>
+                        <div style="color:#E8D08A;font-weight:800;font-size:1rem;">{int(row["Tổng tiền"]):,}đ</div>
+                        <div style="font-size:0.72rem;color:#27ae60;">Đã TT: {int(row["Đã TT"]):,}đ</div>
+                        <div style="font-size:0.72rem;color:{con_lai_color};font-weight:700;">Còn: {int(row["Còn lại"]):,}đ</div>
+                    </div>
+                </div>
+                <div style="height:1px;background:#C9A84C22;margin:10px 0;"></div>
+                <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:0.75rem;color:#FAF6EE88;">
+                    <span>📅 Chụp: <b style="color:#FAF6EE;">{row["Ngày chụp"]}</b></span>
+                    <span>💒 Cưới: <b style="color:#FAF6EE;">{row["Ngày cưới"]}</b></span>
+                    <span>📷 {row["Thợ chụp"] or "Chưa giao"}</span>
+                    <span>💄 {row["Thợ makeup"] or "Chưa giao"}</span>
+                </div>
+            </div>
+            '''.replace(",","."), unsafe_allow_html=True)
+
+    with tab2:
+        ma_list = df["Mã HĐ"].tolist()
+        chon_hd = st.selectbox("Chọn Mã hợp đồng", ma_list)
+        row_hd  = df[df["Mã HĐ"]==chon_hd].iloc[0]
+
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown(f"""
+            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;margin-bottom:12px;">
+                <div style="color:#C9A84C;font-weight:700;margin-bottom:10px;">👤 Thông tin khách hàng</div>
+                <div style="font-size:0.9rem;line-height:2;">
+                    <div><b style="color:#FAF6EE;">{row_hd["Khách hàng"]}</b></div>
+                    <div style="color:#FAF6EE88;">📞 {row_hd["SĐT"]}</div>
+                    <div style="color:#FAF6EE88;">🎁 {row_hd["Gói chụp"]}</div>
+                </div>
+            </div>
+            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;">
+                <div style="color:#C9A84C;font-weight:700;margin-bottom:10px;">📅 Lịch hẹn</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.82rem;">
+                    <div><div style="color:#FAF6EE88;">Ngày chụp</div><div style="color:#FAF6EE;font-weight:700;">{row_hd["Ngày chụp"]}</div></div>
+                    <div><div style="color:#FAF6EE88;">Ngày cưới</div><div style="color:#FAF6EE;font-weight:700;">{row_hd["Ngày cưới"]}</div></div>
+                    <div><div style="color:#FAF6EE88;">Ngày ăn hỏi</div><div style="color:#FAF6EE;font-weight:700;">{row_hd["Ngày ăn hỏi"]}</div></div>
+                    <div><div style="color:#FAF6EE88;">Ngày trả ảnh</div><div style="color:#E8D08A;font-weight:700;">{row_hd["Ngày trả ảnh"]}</div></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c2:
+            st.markdown(f"""
+            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;margin-bottom:12px;">
+                <div style="color:#C9A84C;font-weight:700;margin-bottom:10px;">👥 Ekip phụ trách</div>
+                <div style="font-size:0.85rem;line-height:2;">
+                    <div>📷 Thợ chụp: <b style="color:#FAF6EE;">{row_hd["Thợ chụp"] or "Chưa giao"}</b></div>
+                    <div>💄 Thợ makeup: <b style="color:#FAF6EE;">{row_hd["Thợ makeup"] or "Chưa giao"}</b></div>
+                    <div>🛎️ Lễ tân: <b style="color:#FAF6EE;">{row_hd["Lễ tân"] or "Chưa giao"}</b></div>
+                </div>
+            </div>
+            <div style="background:#2A2618;border:1px solid #C9A84C44;border-radius:10px;padding:16px;">
+                <div style="color:#C9A84C;font-weight:700;margin-bottom:10px;">💰 Lịch thanh toán</div>
+                <div style="font-size:0.85rem;line-height:2.2;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">Tổng hợp đồng</span>
+                        <span style="color:#E8D08A;font-weight:700;">{int(row_hd["Tổng tiền"]):,}đ</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE88;">Đã thanh toán</span>
+                        <span style="color:#27ae60;font-weight:700;">{int(row_hd["Đã TT"]):,}đ</span>
+                    </div>
+                    <div style="height:1px;background:#C9A84C22;margin:4px 0;"></div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#FAF6EE;font-weight:700;">Còn lại</span>
+                        <span style="color:#e74c3c;font-weight:800;">{int(row_hd["Còn lại"]):,}đ</span>
+                    </div>
+                </div>
+            </div>
+            """.replace(",","."), unsafe_allow_html=True)
+
+        # Update
+        st.markdown("<br>", unsafe_allow_html=True)
+        with st.form("form_update_hd"):
+            c1,c2,c3 = st.columns(3)
+            with c1: new_tt  = st.selectbox("Trạng thái", ["Đặt lịch","Đang thực hiện","Hoàn thành","Hủy"])
+            with c2: new_datt= st.number_input("Cập nhật Đã TT (đ)", value=int(row_hd["Đã TT"]), step=500000)
+            with c3: new_gc  = st.text_input("Ghi chú", value=str(row_hd["Ghi chú"]))
+            if st.form_submit_button("💾 Cập nhật hợp đồng", use_container_width=True):
+                mask = st.session_state.df_hopdong["Mã HĐ"]==chon_hd
+                st.session_state.df_hopdong.loc[mask,"Trạng thái"] = new_tt
+                st.session_state.df_hopdong.loc[mask,"Đã TT"]      = new_datt
+                st.session_state.df_hopdong.loc[mask,"Còn lại"]    = int(row_hd["Tổng tiền"]) - new_datt
+                st.session_state.df_hopdong.loc[mask,"Ghi chú"]    = new_gc
+                st.success("✅ Đã cập nhật hợp đồng!"); st.rerun()
+
+    with tab3:
+        goi_options = ["Gói Studio I","Gói Studio II","Gói Studio III","Gói Ảnh Phòng","Gói Ảnh Phòng VIP","Gói Ngoại Cảnh"]
+        with st.form("form_add_hd"):
+            c1,c2 = st.columns(2)
+            with c1:
+                ma_hd   = f"HD{len(df)+1:03d}"
+                kh_name = st.text_input("👤 Tên cặp đôi (Chú - Cô) *")
+                sdt     = st.text_input("📞 Số điện thoại")
+                goi     = st.selectbox("🎁 Gói chụp", goi_options)
+                tong_t  = st.number_input("💰 Tổng tiền (đ)", min_value=0, step=500000, value=8000000)
+                dat_coc = st.number_input("✅ Đặt cọc (đ)", min_value=0, step=500000, value=2000000)
+            with c2:
+                ngay_chup = st.date_input("📅 Ngày chụp", min_value=date.today())
+                ngay_cuoi = st.date_input("💒 Ngày cưới", min_value=date.today())
+                ngay_ah   = st.date_input("💍 Ngày ăn hỏi", min_value=date.today())
+                ngay_tra  = st.date_input("🖼️ Ngày hẹn trả ảnh", min_value=date.today())
+            ghi_chu = st.text_area("📝 Ghi chú", height=60)
+            if st.form_submit_button("✅ Lập hợp đồng mới", use_container_width=True):
+                if kh_name:
+                    new_row = {
+                        "Mã HĐ":ma_hd,"Khách hàng":kh_name,"SĐT":sdt,
+                        "Gói chụp":goi,"Ngày chụp":str(ngay_chup),"Ngày cưới":str(ngay_cuoi),
+                        "Ngày ăn hỏi":str(ngay_ah),"Ngày trả ảnh":str(ngay_tra),
+                        "Thợ chụp":"","Thợ makeup":"","Lễ tân":"",
+                        "Tổng tiền":tong_t,"Đã TT":dat_coc,"Còn lại":tong_t-dat_coc,
+                        "Trạng thái":"Đặt lịch","Ghi chú":ghi_chu
+                    }
+                    st.session_state.df_hopdong = pd.concat(
+                        [st.session_state.df_hopdong, pd.DataFrame([new_row])], ignore_index=True)
+                    st.success(f"✅ Đã lập hợp đồng {ma_hd} cho {kh_name}!"); st.rerun()
+
+
+# ============================================================
+# TRANG: LỊCH HẸN — Calendar view
+# ============================================================
+def page_lichhens():
+    st.markdown('<div class="section-header">🗓️ Lịch hẹn</div>', unsafe_allow_html=True)
+    df = st.session_state.df_lichhens
+
+    LOAI_COLORS = {
+        "Chụp ảnh": "#3498db",
+        "Trả ảnh":  "#27ae60",
+        "Ăn hỏi":   "#e74c3c",
+        "Đám cưới": "#f39c12",
+    }
+
+    tab1, tab2 = st.tabs(["📅 Lịch tháng", "➕ Tạo lịch hẹn"])
+
+    with tab1:
+        # Month picker
+        col1,col2,_ = st.columns([1,1,4])
+        with col1:
+            sel_month = st.selectbox("Tháng", list(range(1,13)), index=date.today().month-1)
+        with col2:
+            sel_year  = st.selectbox("Năm", [2025,2026,2027], index=1)
+
+        # Stats
+        df_month = df[df["Ngày"].str.startswith(f"{sel_year}-{sel_month:02d}")]
+        c1,c2,c3,c4 = st.columns(4)
+        for i,(loai,color) in enumerate(LOAI_COLORS.items()):
+            cnt = len(df_month[df_month["Loại"]==loai])
+            [c1,c2,c3,c4][i].markdown(
+                f'<div style="background:{color}22;border:1px solid {color}55;border-radius:8px;'
+                f'padding:10px;text-align:center;">'
+                f'<div style="font-size:1.5rem;font-weight:800;color:{color};">{cnt}</div>'
+                f'<div style="font-size:0.72rem;color:{color};">{loai}</div></div>',
+                unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Build calendar grid
+        import calendar
+        cal = calendar.monthcalendar(sel_year, sel_month)
+        days_header = ["CN","T2","T3","T4","T5","T6","T7"]
+
+        # Header row
+        cols = st.columns(7)
+        for i,d in enumerate(days_header):
+            cols[i].markdown(f'<div style="text-align:center;font-weight:700;color:#C9A84C;'
+                             f'font-size:0.78rem;padding:4px 0;">{d}</div>', unsafe_allow_html=True)
+
+        # Weeks
+        for week in cal:
+            cols = st.columns(7)
+            for ci, day in enumerate(week):
+                with cols[ci]:
+                    if day == 0:
+                        st.markdown('<div style="height:80px;"></div>', unsafe_allow_html=True)
+                        continue
+                    day_str   = f"{sel_year}-{sel_month:02d}-{day:02d}"
+                    day_events = df[df["Ngày"]==day_str]
+                    is_today  = day_str == str(date.today())
+                    border    = "2px solid #C9A84C" if is_today else "1px solid #C9A84C22"
+                    bg        = "rgba(201,168,76,0.08)" if is_today else "#2A2618"
+
+                    events_html = ""
+                    for _, ev in day_events.iterrows():
+                        ec = LOAI_COLORS.get(ev["Loại"],"#888")
+                        events_html += (f'<div style="background:{ec}33;color:{ec};font-size:0.6rem;'
+                                       f'font-weight:600;padding:1px 4px;border-radius:3px;'
+                                       f'margin-top:2px;white-space:nowrap;overflow:hidden;'
+                                       f'text-overflow:ellipsis;">{ev["Loại"]}</div>')
+
+                    st.markdown(f'''
+                    <div style="background:{bg};border:{border};border-radius:6px;
+                                padding:4px 6px;min-height:80px;margin:1px;">
+                        <div style="font-size:0.8rem;color:{"#C9A84C" if is_today else "#FAF6EE"};
+                                    font-weight:{"800" if is_today else "400"};">{day}</div>
+                        {events_html}
+                    </div>''', unsafe_allow_html=True)
+
+        # Legend
+        st.markdown("<br>", unsafe_allow_html=True)
+        legend = " &nbsp; ".join([f'<span style="color:{c};">■</span> <span style="color:#FAF6EE88;font-size:0.78rem;">{l}</span>'
+                                   for l,c in LOAI_COLORS.items()])
+        st.markdown(f'<div style="text-align:center;">{legend}</div>', unsafe_allow_html=True)
+
+    with tab2:
+        customers = (st.session_state.df_hopdong["Khách hàng"].tolist() +
+                     st.session_state.df_customers["Tên khách"].tolist())
+        with st.form("form_add_lichhens"):
+            c1,c2 = st.columns(2)
+            with c1:
+                kh      = st.selectbox("👤 Khách hàng", customers)
+                loai    = st.selectbox("📌 Loại lịch hẹn", ["Chụp ảnh","Trả ảnh","Ăn hỏi","Đám cưới"])
+                nv      = st.text_input("👤 Nhân viên phụ trách")
+            with c2:
+                ngay_lh = st.date_input("📅 Ngày", min_value=date.today())
+                gio_lh  = st.time_input("⏰ Giờ", value=datetime.strptime("08:00","%H:%M").time())
+            ma_lh = f"LH{len(df)+1:03d}"
+            if st.form_submit_button("✅ Tạo lịch hẹn", use_container_width=True):
+                new_row = {"Mã LH":ma_lh,"Khách hàng":kh,"Loại":loai,
+                           "Ngày":str(ngay_lh),"Giờ":gio_lh.strftime("%H:%M"),
+                           "Nhân viên":nv,"Trạng thái":"Chờ"}
+                st.session_state.df_lichhens = pd.concat(
+                    [st.session_state.df_lichhens, pd.DataFrame([new_row])], ignore_index=True)
+                clr = LOAI_COLORS.get(loai,"#C9A84C")
+                st.success(f"✅ Đã tạo lịch **{loai}** cho **{kh}** ngày {ngay_lh}")
+                st.rerun()
+
+
+# ============================================================
+# TRANG: MAKEUP
+# ============================================================
+def page_makeup():
+    st.markdown('<div class="section-header">💄 Quản lý Makeup</div>', unsafe_allow_html=True)
+    df   = st.session_state.df_makeup
+    user = st.session_state.user
+
+    MU_COLORS = {
+        "Makeup chụp":   "#e91e8c",
+        "Makeup ăn hỏi": "#9b59b6",
+        "Makeup cưới":   "#f39c12",
+    }
+
+    # KPI
+    tong    = len(df)
+    chua_giao = len(df[df["Trạng thái"]=="Chưa giao"])
+    cho_xn  = len(df[df["Trạng thái"]=="Chờ xác nhận"])
+    hoan_th = len(df[df["Trạng thái"]=="Hoàn thành"])
+    c1,c2,c3,c4 = st.columns(4)
+    with c1: st.markdown(f'<div class="metric-card"><h2>{tong}</h2><p>Tổng lịch</p></div>', unsafe_allow_html=True)
+    with c2: st.markdown(f'<div class="metric-card"><h2 style="color:#e74c3c;">{chua_giao}</h2><p>⚠️ Chưa giao</p></div>', unsafe_allow_html=True)
+    with c3: st.markdown(f'<div class="metric-card"><h2 style="color:#e67e22;">{cho_xn}</h2><p>🕐 Chờ xác nhận</p></div>', unsafe_allow_html=True)
+    with c4: st.markdown(f'<div class="metric-card"><h2 style="color:#27ae60;">{hoan_th}</h2><p>✅ Hoàn thành</p></div>', unsafe_allow_html=True)
+
+    # Counts per type
+    st.markdown("<br>", unsafe_allow_html=True)
+    mc1,mc2,mc3 = st.columns(3)
+    for i,(loai,color) in enumerate(MU_COLORS.items()):
+        cnt = len(df[df["Loại makeup"]==loai])
+        [mc1,mc2,mc3][i].markdown(
+            f'<div style="background:{color}18;border:1px solid {color}44;border-radius:8px;'
+            f'padding:14px;text-align:center;">'
+            f'<div style="font-size:1.8rem;font-weight:800;color:{color};">{cnt}</div>'
+            f'<div style="font-size:0.78rem;color:{color};">{loai}</div></div>',
+            unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    tab1, tab2 = st.tabs(["📋 Danh sách lịch makeup", "➕ Thêm lịch makeup"])
+
+    with tab1:
+        # Filter
+        c1,c2 = st.columns(2)
+        with c1: lf = st.selectbox("Loại", ["Tất cả"] + list(MU_COLORS.keys()))
+        with c2: tf = st.selectbox("Trạng thái", ["Tất cả","Chưa giao","Chờ xác nhận","Đang thực hiện","Hoàn thành"])
+        df_show = df.copy()
+        if lf != "Tất cả": df_show = df_show[df_show["Loại makeup"]==lf]
+        if tf != "Tất cả": df_show = df_show[df_show["Trạng thái"]==tf]
+
+        if df_show.empty:
+            st.info("Không có lịch makeup phù hợp.")
+        else:
+            for _, row in df_show.iterrows():
+                color  = MU_COLORS.get(row["Loại makeup"],"#888")
+                tt     = row["Trạng thái"]
+                tc     = {"Chưa giao":"#e74c3c","Chờ xác nhận":"#e67e22",
+                          "Đang thực hiện":"#3498db","Hoàn thành":"#27ae60"}.get(tt,"#888")
+                mu_nv  = row["Thợ makeup"] if row["Thợ makeup"] else "⚠️ Chưa giao"
+                st.markdown(f'''
+                <div style="background:#2A2618;border-left:4px solid {color};
+                            border-radius:0 10px 10px 0;border:1px solid {color}33;
+                            border-left:4px solid {color};padding:12px 16px;margin-bottom:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                        <div>
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                                <span style="color:{color};font-size:0.72rem;font-weight:700;">{row["Mã MU"]}</span>
+                                <span style="background:{color}22;color:{color};font-size:0.68rem;
+                                             padding:1px 8px;border-radius:10px;">{row["Loại makeup"]}</span>
+                                <span style="background:{tc}22;color:{tc};font-size:0.65rem;
+                                             padding:1px 8px;border-radius:10px;">{tt}</span>
+                            </div>
+                            <div style="font-size:0.92rem;color:#FAF6EE;font-weight:700;">{row["Khách hàng"]}</div>
+                            <div style="font-size:0.75rem;color:#E8D08A;margin-top:2px;">💄 {mu_nv}</div>
+                        </div>
+                        <div style="text-align:right;font-size:0.78rem;">
+                            <div style="color:#C9A84C;font-weight:700;">📅 {row["Ngày"]}</div>
+                            <div style="color:#FAF6EE88;">⏰ {row["Giờ"]}</div>
+                        </div>
+                    </div>
+                </div>''', unsafe_allow_html=True)
+
+        # Giao việc makeup
+        st.markdown("---")
+        st.markdown("**💄 Giao việc makeup**")
+        chua_giao_list = df[df["Thợ makeup"]==""]["Mã MU"].tolist()
+        if chua_giao_list:
+            with st.form("form_giao_makeup"):
+                chon_mu = st.selectbox("Chọn lịch chưa giao", chua_giao_list)
+                nv_mu   = st.text_input("Thợ makeup phụ trách")
+                if st.form_submit_button("💄 Giao việc", use_container_width=True):
+                    mask = st.session_state.df_makeup["Mã MU"]==chon_mu
+                    st.session_state.df_makeup.loc[mask,"Thợ makeup"]  = nv_mu
+                    st.session_state.df_makeup.loc[mask,"Trạng thái"]  = "Chờ xác nhận"
+                    st.success(f"✅ Đã giao lịch {chon_mu} cho {nv_mu}"); st.rerun()
+
+    with tab2:
+        customers = st.session_state.df_hopdong["Khách hàng"].tolist()
+        with st.form("form_add_makeup"):
+            c1,c2 = st.columns(2)
+            with c1:
+                kh     = st.selectbox("👤 Khách hàng", customers)
+                loai   = st.selectbox("💄 Loại makeup", list(MU_COLORS.keys()))
+                nv_mu2 = st.text_input("Thợ makeup")
+            with c2:
+                ngay_mu = st.date_input("📅 Ngày", min_value=date.today())
+                gio_mu  = st.time_input("⏰ Giờ", value=datetime.strptime("05:00","%H:%M").time())
+                gc_mu   = st.text_input("Ghi chú")
+            ma_mu = f"MU{len(df)+1:03d}"
+            tt_init = "Chờ xác nhận" if nv_mu2 else "Chưa giao"
+            if st.form_submit_button("✅ Thêm lịch makeup", use_container_width=True):
+                new_row = {"Mã MU":ma_mu,"Khách hàng":kh,"Loại makeup":loai,
+                           "Ngày":str(ngay_mu),"Giờ":gio_mu.strftime("%H:%M"),
+                           "Thợ makeup":nv_mu2,"Trạng thái":tt_init,"Ghi chú":gc_mu}
+                st.session_state.df_makeup = pd.concat(
+                    [st.session_state.df_makeup, pd.DataFrame([new_row])], ignore_index=True)
+                st.success(f"✅ Đã thêm lịch makeup {loai} cho {kh}"); st.rerun()
+
+
+# ============================================================
+# TRANG: HẬU KỲ
+# ============================================================
+def page_hauky():
+    st.markdown('<div class="section-header">🎨 Quản lý Hậu kỳ</div>', unsafe_allow_html=True)
+    df   = st.session_state.df_hauky
+    today_str = str(date.today())
+
+    # KPI
+    tong     = len(df)
+    chua_giao= len(df[df["Trạng thái HK"]=="Chưa giao"])
+    dang_lam = len(df[df["Trạng thái HK"]=="Đang làm"])
+    cho_xl   = len(df[df["Trạng thái HK"]=="Chờ xử lý"])
+    hoan_th  = len(df[df["Trạng thái HK"]=="Hoàn thành"])
+
+    # Quá hạn
+    qua_han = df[(df["Trạng thái HK"]!="Hoàn thành") &
+                 (df["Ngày hẹn trả"] != "") &
+                 (df["Ngày hẹn trả"] < today_str)]
+
+    c1,c2,c3,c4 = st.columns(4)
+    with c1: st.markdown(f'<div class="metric-card"><h2>{tong}</h2><p>Tổng công việc</p></div>', unsafe_allow_html=True)
+    with c2: st.markdown(f'<div class="metric-card"><h2 style="color:#e74c3c;">{chua_giao}</h2><p>Chưa giao việc</p></div>', unsafe_allow_html=True)
+    with c3: st.markdown(f'<div class="metric-card"><h2 style="color:#e67e22;">{dang_lam + cho_xl}</h2><p>Đang xử lý</p></div>', unsafe_allow_html=True)
+    with c4: st.markdown(f'<div class="metric-card"><h2 style="color:#27ae60;">{hoan_th}</h2><p>Hoàn thành</p></div>', unsafe_allow_html=True)
+
+    # Cảnh báo
+    if len(qua_han) > 0:
+        st.markdown(f'''
+        <div style="background:#e74c3c18;border:1px solid #e74c3c55;border-radius:8px;
+                    padding:12px 16px;margin:12px 0;">
+            <span style="color:#e74c3c;font-weight:700;">⚠️ {len(qua_han)} công việc QUÁ HẠN</span>
+            <span style="color:#FAF6EE88;font-size:0.82rem;"> — Cần xử lý gấp!</span>
+        </div>''', unsafe_allow_html=True)
+    if chua_giao > 0:
+        st.markdown(f'''
+        <div style="background:#e67e2218;border:1px solid #e67e2255;border-radius:8px;
+                    padding:12px 16px;margin-bottom:12px;">
+            <span style="color:#e67e22;font-weight:700;">📋 {chua_giao} công việc CHƯA GIAO</span>
+            <span style="color:#FAF6EE88;font-size:0.82rem;"> — Cần tạo công việc hậu kỳ</span>
+        </div>''', unsafe_allow_html=True)
+
+    tab1, tab2 = st.tabs(["📋 Danh sách hậu kỳ", "➕ Giao việc mới"])
+
+    with tab1:
+        tt_f = st.selectbox("Lọc trạng thái", ["Tất cả","Chưa giao","Chờ xử lý","Đang làm","Hoàn thành"])
+        df_show = df if tt_f=="Tất cả" else df[df["Trạng thái HK"]==tt_f]
+
+        for _, row in df_show.iterrows():
+            tt    = row["Trạng thái HK"]
+            tc    = {"Chưa giao":"#e74c3c","Chờ xử lý":"#e67e22",
+                     "Đang làm":"#3498db","Hoàn thành":"#27ae60"}.get(tt,"#888")
+            # Overdue check
+            is_over = (row["Ngày hẹn trả"] and row["Ngày hẹn trả"] < today_str and tt != "Hoàn thành")
+            over_badge = '<span style="background:#e74c3c;color:#fff;font-size:0.65rem;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:6px;">QUÁ HẠN</span>' if is_over else ""
+            nv_hk = row["Nhân viên HK"] if row["Nhân viên HK"] else "⚠️ Chưa giao"
+
+            st.markdown(f'''
+            <div style="background:#2A2618;border:1px solid {tc}44;border-left:4px solid {tc};
+                        border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                    <div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                            <span style="color:#C9A84C;font-size:0.72rem;font-weight:600;">{row["Mã HK"]}</span>
+                            <span style="color:#FAF6EE88;font-size:0.72rem;">({row["Mã HĐ"]})</span>
+                            <span style="background:{tc}22;color:{tc};font-size:0.65rem;padding:1px 8px;border-radius:10px;">{tt}</span>
+                            {over_badge}
+                        </div>
+                        <div style="font-size:0.92rem;color:#FAF6EE;font-weight:700;">{row["Khách hàng"]}</div>
+                        <div style="font-size:0.75rem;color:#E8D08A;margin-top:2px;">🎨 {row["Loại"]} &nbsp;|&nbsp; 👤 {nv_hk}</div>
+                        <div style="font-size:0.72rem;color:#FAF6EE66;margin-top:2px;">{row["Ghi chú"]}</div>
+                    </div>
+                    <div style="text-align:right;font-size:0.78rem;">
+                        <div style="color:#FAF6EE88;">Ngày giao: <b style="color:#FAF6EE;">{row["Ngày giao"] or "—"}</b></div>
+                        <div style="color:{"#e74c3c" if is_over else "#C9A84C"};font-weight:700;">Hẹn trả: {row["Ngày hẹn trả"]}</div>
+                    </div>
+                </div>
+            </div>''', unsafe_allow_html=True)
+
+        # Cập nhật trạng thái
+        st.markdown("---")
+        st.markdown("**🔄 Cập nhật tiến độ hậu kỳ**")
+        ma_list = df["Mã HK"].tolist()
+        with st.form("form_update_hk"):
+            c1,c2,c3 = st.columns(3)
+            with c1: chon_hk = st.selectbox("Mã HK", ma_list)
+            with c2:
+                row_hk = df[df["Mã HK"]==chon_hk].iloc[0]
+                new_tt = st.selectbox("Trạng thái mới", ["Chưa giao","Chờ xử lý","Đang làm","Hoàn thành"],
+                    index=["Chưa giao","Chờ xử lý","Đang làm","Hoàn thành"].index(row_hk["Trạng thái HK"]) if row_hk["Trạng thái HK"] in ["Chưa giao","Chờ xử lý","Đang làm","Hoàn thành"] else 0)
+            with c3: new_nv = st.text_input("Nhân viên HK", value=str(row_hk["Nhân viên HK"]))
+            if st.form_submit_button("💾 Cập nhật", use_container_width=True):
+                mask = st.session_state.df_hauky["Mã HK"]==chon_hk
+                st.session_state.df_hauky.loc[mask,"Trạng thái HK"]  = new_tt
+                st.session_state.df_hauky.loc[mask,"Nhân viên HK"]   = new_nv
+                if not row_hk["Ngày giao"] and new_tt != "Chưa giao":
+                    st.session_state.df_hauky.loc[mask,"Ngày giao"] = today_str
+                st.success("✅ Đã cập nhật!"); st.rerun()
+
+    with tab2:
+        customers = st.session_state.df_hopdong["Khách hàng"].tolist()
+        hd_list   = st.session_state.df_hopdong["Mã HĐ"].tolist()
+        with st.form("form_add_hk"):
+            c1,c2 = st.columns(2)
+            with c1:
+                kh_hk    = st.selectbox("👤 Khách hàng", customers)
+                ma_hd_hk = st.selectbox("Mã hợp đồng", hd_list)
+                loai_hk  = st.selectbox("🎨 Loại công việc", ["Chỉnh sửa album","Video slide","Album in","Video highlight","Ảnh đơn"])
+                nv_hk2   = st.text_input("Nhân viên hậu kỳ")
+            with c2:
+                ngay_htra = st.date_input("📅 Ngày hẹn trả", min_value=date.today(), value=date.today()+timedelta(days=30))
+                gc_hk     = st.text_area("📝 Ghi chú", height=80)
+            ma_hk = f"HK{len(df)+1:03d}"
+            tt_hk = "Chờ xử lý" if nv_hk2 else "Chưa giao"
+            if st.form_submit_button("✅ Giao việc hậu kỳ", use_container_width=True):
+                new_row = {"Mã HK":ma_hk,"Khách hàng":kh_hk,"Mã HĐ":ma_hd_hk,
+                           "Loại":loai_hk,"Nhân viên HK":nv_hk2,
+                           "Ngày giao":today_str if nv_hk2 else "",
+                           "Ngày hẹn trả":str(ngay_htra),
+                           "Trạng thái HK":tt_hk,"Ghi chú":gc_hk}
+                st.session_state.df_hauky = pd.concat(
+                    [st.session_state.df_hauky, pd.DataFrame([new_row])], ignore_index=True)
+                st.success(f"✅ Đã giao việc hậu kỳ {loai_hk} cho {kh_hk}"); st.rerun()
+
